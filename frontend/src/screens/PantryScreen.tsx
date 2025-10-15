@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,26 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { PantryItem } from '../types/pantry.types';
+import { PantryStackParamList } from '../navigation/AppNavigator';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { fetchPantryItems } from '../store/pantrySlice';
 
-const PantryScreen: React.FC = () => {
+type PantryScreenNavigationProp = StackNavigationProp<PantryStackParamList, 'PantryList'>;
+
+interface PantryScreenProps {
+  navigation: PantryScreenNavigationProp;
+}
+
+const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state: RootState) => state.pantry);
+
+  useEffect(() => {
+    dispatch(fetchPantryItems({}) as any);
+  }, [dispatch]);
 
   const renderItem = ({ item }: { item: PantryItem }) => (
     <TouchableOpacity style={styles.itemCard}>
@@ -77,8 +91,18 @@ const PantryScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Pantry</Text>
-        <Text style={styles.subtitle}>{items.length} items</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.title}>My Pantry</Text>
+            <Text style={styles.subtitle}>{items.length} items</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate('AddItem')}
+          >
+            <Text style={styles.addButtonText}>+ Add Item</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       
       <FlatList
@@ -104,6 +128,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -113,6 +142,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginTop: 5,
+  },
+  addButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 5,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   listContainer: {
     padding: 15,

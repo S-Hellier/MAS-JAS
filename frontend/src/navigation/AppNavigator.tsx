@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
 import PantryScreen from '../screens/PantryScreen';
+import AddItemScreen from '../screens/AddItemScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 // Define navigation types
@@ -15,8 +16,49 @@ export type RootTabParamList = {
   Settings: undefined;
 };
 
+export type PantryStackParamList = {
+  PantryList: undefined;
+  AddItem: undefined;
+};
+
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const Stack = createStackNavigator();
+const PantryStack = createStackNavigator<PantryStackParamList>();
+
+const PantryStackNavigator: React.FC = () => {
+  return (
+    <PantryStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#fff',
+          borderBottomWidth: 1,
+          borderBottomColor: '#e0e0e0',
+        },
+        headerTitleStyle: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: '#333',
+        },
+        headerTintColor: '#007AFF',
+      }}
+    >
+      <PantryStack.Screen
+        name="PantryList"
+        component={PantryScreen}
+        options={{
+          title: 'My Pantry',
+        }}
+      />
+      <PantryStack.Screen
+        name="AddItem"
+        component={AddItemScreen}
+        options={{
+          title: 'Add Item',
+        }}
+      />
+    </PantryStack.Navigator>
+  );
+};
 
 const TabNavigator: React.FC = () => {
   return (
@@ -54,10 +96,11 @@ const TabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Pantry"
-        component={PantryScreen}
+        component={PantryStackNavigator}
         options={{
           title: 'My Pantry',
           tabBarLabel: 'Pantry',
+          headerShown: false,
         }}
       />
       <Tab.Screen
