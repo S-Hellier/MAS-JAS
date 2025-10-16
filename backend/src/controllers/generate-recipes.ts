@@ -9,7 +9,7 @@
 import fetch from "node-fetch";
 import { z } from "zod";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "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";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const LOCAL_API_BASE = process.env.LOCAL_API_BASE || "http://localhost:3001/api/v1";
 
 if (!OPENAI_API_KEY) {
@@ -239,8 +239,8 @@ async function generateRecipeForUser(constraints: UserConstraints) {
 // recipe generation test
 async function main() {
   const userConstraints: UserConstraints = {
-    allergies: ["nuts"], // example: user is allergic to nuts
-    diets: ["vegetarian"], // wants vegetarian recipes]]
+    allergies: ["nuts"],
+    diets: ["vegetarian"],
   };
 
   try {

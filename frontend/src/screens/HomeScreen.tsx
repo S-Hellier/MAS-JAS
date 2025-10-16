@@ -6,8 +6,10 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  Button,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import { RootState, AppDispatch } from '../store';
 import { fetchPantryItems, fetchExpiringItems, fetchExpiredItems } from '../store/pantrySlice';
 
@@ -29,6 +31,8 @@ const HomeScreen: React.FC = () => {
     dispatch(fetchExpiringItems(7));
     dispatch(fetchExpiredItems());
   };
+
+  const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,6 +62,13 @@ const HomeScreen: React.FC = () => {
         <View style={styles.actionsContainer}>
           <TouchableOpacity style={styles.actionButton} onPress={handleRefresh}>
             <Text style={styles.actionButtonText}>Refresh Data</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#34C759', marginTop: 10 }]}
+            onPress={() => navigation.navigate('GenerateRecipe')}
+          >
+            <Text style={styles.actionButtonText}>Generate Recipe</Text>
           </TouchableOpacity>
         </View>
 

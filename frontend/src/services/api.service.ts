@@ -102,8 +102,16 @@ class ApiService {
     const response: AxiosResponse<BarcodeLookupResponse> = await this.api.get(`/barcode/${barcode}`);
     return response.data;
   }
-}
 
+  async generateRecipe(): Promise<{ recipe: any }> {
+    const response: AxiosResponse<{ recipe: any }> = await axios.post(
+      'http://localhost:3001/api/v1/recipes/generate',
+      {},
+      { headers: { 'x-user-id': this.userId } }
+    );
+    return response.data;
+  }
+}
 // Export singleton instance
 export const apiService = new ApiService();
 export default apiService;
