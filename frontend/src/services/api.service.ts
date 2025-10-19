@@ -14,8 +14,12 @@ class ApiService {
   private userId: string = '816614f4-b6eb-4806-9e87-0ed87d62c317'; // Default user ID
 
   constructor() {
+    // Use 10.0.2.2 for Android emulator to access host machine's localhost
+    // For iOS simulator, use localhost
+    const baseURL = 'http://10.0.2.2:3001/api/v1/pantry';
+
     this.api = axios.create({
-      baseURL: 'http://localhost:3001/api/v1/pantry',
+      baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +50,7 @@ class ApiService {
 
   // Health check
   async healthCheck(): Promise<{ status: string; timestamp: string; version: string }> {
-    const response: AxiosResponse = await axios.get('http://localhost:3001/health');
+    const response: AxiosResponse = await axios.get('http://10.0.2.2:3001/health');
     return response.data;
   }
 

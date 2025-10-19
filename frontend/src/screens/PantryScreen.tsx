@@ -29,12 +29,15 @@ const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
   }, [dispatch]);
 
   const renderItem = ({ item }: { item: PantryItem }) => (
-    <TouchableOpacity style={styles.itemCard}>
+    <TouchableOpacity
+      style={styles.itemCard}
+      onPress={() => navigation.navigate('ItemDetail', { itemId: item.id })}
+    >
       <View style={styles.itemHeader}>
         <Text style={styles.itemName}>{item.name}</Text>
         {item.brand && <Text style={styles.itemBrand}>{item.brand}</Text>}
       </View>
-      
+
       <View style={styles.itemDetails}>
         <Text style={styles.itemQuantity}>
           {item.quantity} {item.unit}
@@ -43,7 +46,7 @@ const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
           {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
         </Text>
       </View>
-      
+
       <View style={styles.itemFooter}>
         <Text style={styles.itemExpiry}>
           Expires: {new Date(item.expirationDate).toLocaleDateString()}
@@ -52,7 +55,7 @@ const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
           Added: {new Date(item.dateAdded).toLocaleDateString()}
         </Text>
       </View>
-      
+
       {item.notes && (
         <Text style={styles.itemNotes}>{item.notes}</Text>
       )}

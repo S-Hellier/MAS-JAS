@@ -7,6 +7,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
 import PantryScreen from '../screens/PantryScreen';
 import AddItemScreen from '../screens/AddItemScreen';
+import ItemDetailScreen from '../screens/ItemDetailScreen';
+import EditItemScreen from '../screens/EditItemScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 // Define navigation types
@@ -19,6 +21,8 @@ export type RootTabParamList = {
 export type PantryStackParamList = {
   PantryList: undefined;
   AddItem: undefined;
+  ItemDetail: { itemId: string };
+  EditItem: { itemId: string };
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -54,6 +58,20 @@ const PantryStackNavigator: React.FC = () => {
         component={AddItemScreen}
         options={{
           title: 'Add Item',
+        }}
+      />
+      <PantryStack.Screen
+        name="ItemDetail"
+        component={ItemDetailScreen}
+        options={{
+          title: 'Item Details',
+        }}
+      />
+      <PantryStack.Screen
+        name="EditItem"
+        component={EditItemScreen}
+        options={{
+          title: 'Edit Item',
         }}
       />
     </PantryStack.Navigator>
