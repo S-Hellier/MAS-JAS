@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4930fe31-b89a-460f-9748-29d5d98797c6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/frontend/src/navigation/AppNavigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/navigation/AppNavigator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/screens/PantryScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/screens/PantryScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/services/api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/api.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -20,6 +19,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Grapeshot"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/S-Hellier/MAS-JAS.git&quot;,
+    &quot;accountId&quot;: &quot;385cea96-4b4f-4654-963d-52c25eecc4e4&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
@@ -52,5 +63,16 @@
       <updated>1760886081568</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
