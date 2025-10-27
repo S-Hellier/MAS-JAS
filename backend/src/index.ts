@@ -14,8 +14,11 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 
 // CORS configuration
+// In development, allow all origins for mobile device testing
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' 
+    ? (process.env.CORS_ORIGIN || 'http://localhost:3000')
+    : true, // Allow all origins in development
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -49,11 +52,13 @@ app.use('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+// Bind to 0.0.0.0 to accept connections from all network interfaces (allows mobile devices on same network)
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Pantry App Backend running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   console.log(`📦 API Base URL: http://localhost:${PORT}/api/v1`);
+  console.log(`📱 Mobile devices: Use your Mac's IP address instead of localhost`);
 });
 
 export default app;
