@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
+import OpenAI from 'openai';
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 /**
  * Interface for Open Food Facts API Response
@@ -49,16 +55,91 @@ interface ProductInfo {
   };
   imageUrl?: string;
   allergens?: string;
+  suggestedExpirationDate?: string; // AI-suggested expiration date (YYYY-MM-DD)
+}
+
+/**
+ * Suggest an expiration date for a product using AI
+ * 
+ * @param productName - The name of the product
+ * @param category - The product category
+ * @returns Suggested expiration date in ISO format (YYYY-MM-DD)
+ */
+async function suggestExpirationDate(productName: string, category?: string): Promise<string | null> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.log('OpenAI API key not configured, skipping expiration date suggestion');
+      return null;
+    }
+
+    const prompt = `You are a food safety expert. Based on the product information below, suggest a reasonable expiration date from today.
+
+Product: ${productName}
+Category: ${category || 'unknown'}
+
+Guidelines:
+- Fresh produce (fruits, vegetables): 3-7 days
+- Fresh dairy (milk, yogurt): 7-14 days  
+- Fresh meat/seafood: 1-3 days
+- Bread/bakery: 3-7 days
+- Frozen foods: 3-6 months
+- Canned goods: 1-2 years
+- Dry goods (rice, pasta, flour): 6-12 months
+- Condiments (opened): 1-3 months
+- Snacks (chips, cookies): 1-3 months
+- Beverages (unopened): 3-12 months
+
+Respond with ONLY a number representing days from today (e.g., "7" for 7 days, "365" for 1 year).
+Be conservative - suggest shorter dates when uncertain.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a food safety expert that suggests realistic expiration dates. Respond only with a number of days.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 10,
+    });
+
+    const daysFromNow = parseInt(completion.choices[0].message.content?.trim() || '0');
+    
+    if (isNaN(daysFromNow) || daysFromNow <= 0) {
+      console.log('Invalid AI response for expiration date');
+      return null;
+    }
+
+    // Calculate the expiration date
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + daysFromNow);
+    
+    // Format as YYYY-MM-DD
+    const formattedDate = expirationDate.toISOString().split('T')[0];
+    
+    console.log(`AI suggested expiration: ${daysFromNow} days (${formattedDate}) for ${productName}`);
+    return formattedDate;
+
+  } catch (error) {
+    console.error('Error suggesting expiration date:', error);
+    return null;
+  }
 }
 
 /**
  * Lookup product information by barcode
  * 
  * This endpoint calls the Open Food Facts API to get product details
+ * and uses AI to suggest a reasonable expiration date
  * 
  * @route GET /api/v1/barcode/lookup/:barcode
  * @param barcode - The barcode number (EAN-13, UPC-A, etc.)
- * @returns Product information including name, brand, and nutrition facts
+ * @returns Product information including name, brand, nutrition facts, and suggested expiration date
  */
 export const lookupBarcode = async (req: Request, res: Response) => {
   try {
@@ -113,6 +194,17 @@ export const lookupBarcode = async (req: Request, res: Response) => {
       imageUrl: product.image_url || undefined,
       allergens: product.allergens || undefined,
     };
+
+    // Use AI to suggest an expiration date
+    const suggestedExpiration = await suggestExpirationDate(
+      productInfo.name,
+      productInfo.category
+    );
+    
+    // Add suggested expiration date if AI provided one
+    if (suggestedExpiration) {
+      productInfo.suggestedExpirationDate = suggestedExpiration;
+    }
 
     // Add nutrition information if available
     if (product.nutriments) {

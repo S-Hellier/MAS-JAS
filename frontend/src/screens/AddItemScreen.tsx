@@ -141,6 +141,13 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
           handleInputChange('category', productData.category as FoodCategory);
         }
         
+        // Auto-populate expiration date if AI suggested one
+        if (productData.suggestedExpirationDate) {
+          handleInputChange('expirationDate', productData.suggestedExpirationDate);
+          // Also update the date picker state
+          setSelectedDate(new Date(productData.suggestedExpirationDate));
+        }
+        
         // Populate nutrition information if available
         if (productData.nutritionInfo) {
           setFormData(prev => ({
@@ -160,9 +167,13 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
         }
         
         // Show success message with product name
+        const expirationMessage = productData.suggestedExpirationDate 
+          ? '\n\n✨ AI suggested an expiration date based on the product type. You can adjust it if needed.'
+          : '\n\nPlease add an expiration date.';
+        
         Alert.alert(
           '✓ Product Found!',
-          `${productData.name}${productData.brand ? ' by ' + productData.brand : ''}\n\nProduct information has been added to the form. Please review and add an expiration date.`,
+          `${productData.name}${productData.brand ? ' by ' + productData.brand : ''}${expirationMessage}`,
           [{ text: 'OK' }]
         );
       } else {
@@ -206,10 +217,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
       Alert.alert('Validation Error', 'Quantity must be greater than 0');
       return false;
     }
-    if (!formData.expirationDate) {
-      Alert.alert('Validation Error', 'Expiration date is required');
-      return false;
-    }
+    // Expiration date is now optional - AI will suggest one if not provided
     return true;
   };
 
@@ -412,7 +420,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
               )}
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Expiration Date *</Text>
+                <Text style={styles.label}>Expiration Date (Optional - AI will suggest if blank)</Text>
                 <TouchableOpacity
                   style={styles.datePickerButton}
                   onPress={() => setShowDatePicker(true)}
