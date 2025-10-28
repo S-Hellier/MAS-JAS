@@ -8,6 +8,12 @@ import {
   PantryItemsResponse 
 } from '@/types/pantry.types';
 import { z } from 'zod';
+import OpenAI from 'openai';
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 // Validation schemas
 const createPantryItemSchema = z.object({
@@ -16,7 +22,7 @@ const createPantryItemSchema = z.object({
   quantity: z.number().positive(),
   unit: z.enum(['pieces', 'grams', 'kilograms', 'pounds', 'ounces', 'liters', 'milliliters', 'cups', 'tablespoons', 'teaspoons', 'packages', 'cans', 'bottles']),
   category: z.enum(['produce', 'grains', 'meat', 'dairy', 'seafood', 'beverages', 'snacks', 'condiments', 'frozen', 'canned', 'bakery', 'spices', 'other']),
-  expirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  expirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')), // Allow empty string or valid date - AI will suggest if empty
   nutritionInfo: z.object({
     calories: z.number().optional(),
     protein: z.number().optional(),
@@ -46,6 +52,75 @@ const pantryFilterSchema = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional()
 });
 
+/**
+ * Suggest an expiration date for a product using AI
+ */
+async function suggestExpirationDate(productName: string, category?: string): Promise<string | null> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.log('OpenAI API key not configured, skipping expiration date suggestion');
+      return null;
+    }
+
+    const prompt = `You are a food safety expert. Based on the product information below, suggest a reasonable expiration date from today.
+
+Product: ${productName}
+Category: ${category || 'unknown'}
+
+Guidelines:
+- Fresh produce (fruits, vegetables): 3-7 days
+- Fresh dairy (milk, yogurt): 7-14 days  
+- Fresh meat/seafood: 1-3 days
+- Bread/bakery: 3-7 days
+- Frozen foods: 3-6 months
+- Canned goods: 1-2 years
+- Dry goods (rice, pasta, flour): 6-12 months
+- Condiments (opened): 1-3 months
+- Snacks (chips, cookies): 1-3 months
+- Beverages (unopened): 3-12 months
+
+Respond with ONLY a number representing days from today (e.g., "7" for 7 days, "365" for 1 year).
+Be conservative - suggest shorter dates when uncertain.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a food safety expert that suggests realistic expiration dates. Respond only with a number of days.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 10,
+    });
+
+    const daysFromNow = parseInt(completion.choices[0].message.content?.trim() || '0');
+    
+    if (isNaN(daysFromNow) || daysFromNow <= 0) {
+      console.log('Invalid AI response for expiration date');
+      return null;
+    }
+
+    // Calculate the expiration date
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + daysFromNow);
+    
+    // Format as YYYY-MM-DD
+    const formattedDate = expirationDate.toISOString().split('T')[0];
+    
+    console.log(`AI suggested expiration: ${daysFromNow} days (${formattedDate}) for ${productName}`);
+    return formattedDate;
+
+  } catch (error) {
+    console.error('Error suggesting expiration date:', error);
+    return null;
+  }
+}
+
 export class PantryController {
   private dbService: DatabaseService;
 
@@ -55,6 +130,7 @@ export class PantryController {
 
   /**
    * Create a new pantry item
+   * If no expiration date is provided, AI will suggest one based on the product
    */
   createPantryItem = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -63,6 +139,26 @@ export class PantryController {
       const userId = req.headers['x-user-id'] as string || 'default-user';
 
       const validatedData = createPantryItemSchema.parse(req.body);
+      
+      // If no expiration date provided (empty string, undefined, or null), use AI to suggest one
+      if (!validatedData.expirationDate || validatedData.expirationDate.trim() === '') {
+        console.log(`No expiration date provided for "${validatedData.name}", asking AI...`);
+        const suggestedDate = await suggestExpirationDate(
+          validatedData.name,
+          validatedData.category
+        );
+        
+        if (suggestedDate) {
+          validatedData.expirationDate = suggestedDate;
+          console.log(`AI suggested expiration date: ${suggestedDate}`);
+        } else {
+          // Fallback: suggest 30 days if AI fails
+          const fallbackDate = new Date();
+          fallbackDate.setDate(fallbackDate.getDate() + 30);
+          validatedData.expirationDate = fallbackDate.toISOString().split('T')[0];
+          console.log(`AI failed, using fallback: ${validatedData.expirationDate}`);
+        }
+      }
       
       const pantryItem = await this.dbService.createPantryItem(userId, validatedData);
       

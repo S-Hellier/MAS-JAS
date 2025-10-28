@@ -17,6 +17,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useDispatch } from 'react-redux';
 import { createPantryItem } from '../store/pantrySlice';
 import { FoodCategory, QuantityUnit, CreatePantryItemRequest, NutritionInfo } from '../types/pantry.types';
+import BarcodeScanner from '../components/BarcodeScanner';
+import apiService from '../services/api.service';
 
 interface AddItemScreenProps {
   navigation: any;
@@ -28,6 +30,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showUnitModal, setShowUnitModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   
   // Form state
@@ -102,6 +105,99 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
     setShowDatePicker(false);
   };
 
+  /**
+   * Handle barcode scan result
+   * This function is called when the BarcodeScanner component detects a barcode
+   * It fetches product information from Open Food Facts and auto-populates the form
+   */
+  const handleBarcodeScanned = async (barcode: string) => {
+    // Close the scanner modal
+    setShowBarcodeScanner(false);
+    
+    // Update the barcode field immediately
+    handleInputChange('barcode', barcode);
+    
+    // Show loading state
+    setLoading(true);
+    
+    try {
+      // Call the barcode lookup API
+      const response = await apiService.lookupBarcode(barcode);
+      
+      if (response.success && response.data) {
+        const productData = response.data;
+        
+        // Auto-populate form fields with the fetched data
+        if (productData.name) {
+          handleInputChange('name', productData.name);
+        }
+        
+        if (productData.brand) {
+          handleInputChange('brand', productData.brand);
+        }
+        
+        if (productData.category) {
+          // Map the category string to our FoodCategory enum
+          handleInputChange('category', productData.category as FoodCategory);
+        }
+        
+        // Auto-populate expiration date if AI suggested one
+        if (productData.suggestedExpirationDate) {
+          handleInputChange('expirationDate', productData.suggestedExpirationDate);
+          // Also update the date picker state
+          setSelectedDate(new Date(productData.suggestedExpirationDate));
+        }
+        
+        // Populate nutrition information if available
+        if (productData.nutritionInfo) {
+          setFormData(prev => ({
+            ...prev,
+            nutritionInfo: {
+              calories: productData.nutritionInfo.calories || prev.nutritionInfo?.calories,
+              protein: productData.nutritionInfo.protein || prev.nutritionInfo?.protein,
+              carbohydrates: productData.nutritionInfo.carbohydrates || prev.nutritionInfo?.carbohydrates,
+              fat: productData.nutritionInfo.fat || prev.nutritionInfo?.fat,
+              fiber: productData.nutritionInfo.fiber || prev.nutritionInfo?.fiber,
+              sugar: productData.nutritionInfo.sugar || prev.nutritionInfo?.sugar,
+              sodium: productData.nutritionInfo.sodium || prev.nutritionInfo?.sodium,
+              servingSize: productData.nutritionInfo.servingSize || prev.nutritionInfo?.servingSize || '',
+              servingUnit: prev.nutritionInfo?.servingUnit || '',
+            },
+          }));
+        }
+        
+        // Show success message with product name
+        const expirationMessage = productData.suggestedExpirationDate 
+          ? '\n\n✨ AI suggested an expiration date based on the product type. You can adjust it if needed.'
+          : '\n\nPlease add an expiration date.';
+        
+        Alert.alert(
+          '✓ Product Found!',
+          `${productData.name}${productData.brand ? ' by ' + productData.brand : ''}${expirationMessage}`,
+          [{ text: 'OK' }]
+        );
+      } else {
+        // Product not found in database
+        Alert.alert(
+          'Product Not Found',
+          `Barcode ${barcode} was scanned but the product is not in the database.\n\nThe barcode has been added to the form. Please enter the product details manually.`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error looking up barcode:', error);
+      
+      // Show error message but keep the barcode in the form
+      Alert.alert(
+        'Lookup Failed',
+        `Could not fetch product information for this barcode.\n\nThe barcode has been saved. You can enter the product details manually.`,
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formatDateForDisplay = (dateString: string) => {
     if (!dateString) return 'Select expiration date';
     const date = new Date(dateString);
@@ -121,10 +217,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
       Alert.alert('Validation Error', 'Quantity must be greater than 0');
       return false;
     }
-    if (!formData.expirationDate) {
-      Alert.alert('Validation Error', 'Expiration date is required');
-      return false;
-    }
+    // Expiration date is now optional - AI will suggest one if not provided
     return true;
   };
 
@@ -327,7 +420,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
               )}
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Expiration Date *</Text>
+                <Text style={styles.label}>Expiration Date (Optional - AI will suggest if blank)</Text>
                 <TouchableOpacity
                   style={styles.datePickerButton}
                   onPress={() => setShowDatePicker(true)}
@@ -381,14 +474,22 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Barcode (Optional)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formData.barcode}
-                  onChangeText={(value) => handleInputChange('barcode', value)}
-                  placeholder="1234567890123"
-                  keyboardType="numeric"
-                  placeholderTextColor="#999"
-                />
+                <View style={styles.barcodeInputContainer}>
+                  <TextInput
+                    style={[styles.textInput, styles.barcodeInput]}
+                    value={formData.barcode}
+                    onChangeText={(value) => handleInputChange('barcode', value)}
+                    placeholder="1234567890123"
+                    keyboardType="numeric"
+                    placeholderTextColor="#999"
+                  />
+                  <TouchableOpacity
+                    style={styles.scanButton}
+                    onPress={() => setShowBarcodeScanner(true)}
+                  >
+                    <Text style={styles.scanButtonText}>📷 Scan</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <View style={styles.inputGroup}>
@@ -522,6 +623,18 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Barcode Scanner Modal */}
+      <Modal
+        visible={showBarcodeScanner}
+        animationType="slide"
+        onRequestClose={() => setShowBarcodeScanner(false)}
+      >
+        <BarcodeScanner
+          onBarcodeScanned={handleBarcodeScanned}
+          onClose={() => setShowBarcodeScanner(false)}
+        />
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -600,6 +713,27 @@ const styles = StyleSheet.create({
   },
   halfWidth: {
     width: '48%',
+  },
+  barcodeInputContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  barcodeInput: {
+    flex: 1,
+  },
+  scanButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 90,
+  },
+  scanButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   dropdownButton: {
     borderWidth: 1,
