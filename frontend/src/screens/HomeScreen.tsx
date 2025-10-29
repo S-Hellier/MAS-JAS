@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,13 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Button,
+  ActivityIndicator,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { RootState, AppDispatch } from '../store';
 import { fetchPantryItems, fetchExpiringItems, fetchExpiredItems } from '../store/pantrySlice';
+import apiService from '../services/api.service';
 
 const HomeScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,20 +20,51 @@ const HomeScreen: React.FC = () => {
     (state: RootState) => state.pantry
   );
 
-  React.useEffect(() => {
+  // State for smart expiration notifications
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+
+  // Fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoadingNotifications(true);
+      const response = await apiService.getExpiringNotifications();
+      if (response.success) {
+        setNotifications(response.data.items || []);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  }, []);
+
+  useEffect(() => {
     // Load initial data when component mounts
-    dispatch(fetchPantryItems());
+    dispatch(fetchPantryItems({}));
     dispatch(fetchExpiringItems(7));
     dispatch(fetchExpiredItems());
-  }, [dispatch]);
+    fetchNotifications();
+  }, [dispatch, fetchNotifications]);
+
+  // Refresh notifications every time the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchNotifications();
+      dispatch(fetchPantryItems({}));
+      dispatch(fetchExpiringItems(7));
+      dispatch(fetchExpiredItems());
+    }, [dispatch, fetchNotifications])
+  );
 
   const handleRefresh = () => {
-    dispatch(fetchPantryItems());
+    dispatch(fetchPantryItems({}));
     dispatch(fetchExpiringItems(7));
     dispatch(fetchExpiredItems());
+    fetchNotifications();
   };
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,6 +73,40 @@ const HomeScreen: React.FC = () => {
           <Text style={styles.title}>Pantry Manager</Text>
           <Text style={styles.subtitle}>Keep track of your food inventory</Text>
         </View>
+
+        {/* Smart Expiration Notifications */}
+        {loadingNotifications ? (
+          <View style={styles.notificationsLoading}>
+            <ActivityIndicator size="small" color="#007AFF" />
+            <Text style={styles.loadingNotificationsText}>Checking expiration alerts...</Text>
+          </View>
+        ) : notifications.length > 0 ? (
+          <View style={styles.notificationsContainer}>
+            <Text style={styles.notificationsTitle}>
+              ⚠️ Expiration Alerts ({notifications.length})
+            </Text>
+            {notifications.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.notificationCard,
+                  item.urgency === 'today' && styles.notificationToday,
+                  item.urgency === 'tomorrow' && styles.notificationTomorrow,
+                  item.urgency === 'urgent' && styles.notificationUrgent,
+                ]}
+                onPress={() => navigation.navigate('Pantry')}
+              >
+                <Text style={styles.notificationMessage}>{item.message}</Text>
+                <View style={styles.notificationDetails}>
+                  <Text style={styles.notificationBrand}>{item.brand || item.name}</Text>
+                  <Text style={styles.notificationQuantity}>
+                    {item.quantity} {item.unit}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : null}
 
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
@@ -225,6 +291,80 @@ const styles = StyleSheet.create({
   itemExpiry: {
     fontSize: 12,
     color: '#999',
+  },
+  // Notification styles
+  notificationsLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
+    marginHorizontal: 20,
+    marginTop: 10,
+    backgroundColor: '#f0f8ff',
+    borderRadius: 10,
+  },
+  loadingNotificationsText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#007AFF',
+  },
+  notificationsContainer: {
+    padding: 20,
+    paddingBottom: 10,
+  },
+  notificationsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  notificationCard: {
+    backgroundColor: '#fff3cd',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#ffc107',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  notificationToday: {
+    backgroundColor: '#ffebee',
+    borderLeftColor: '#f44336',
+  },
+  notificationTomorrow: {
+    backgroundColor: '#fff3e0',
+    borderLeftColor: '#ff9800',
+  },
+  notificationUrgent: {
+    backgroundColor: '#fff9e0',
+    borderLeftColor: '#ffc107',
+  },
+  notificationMessage: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  notificationDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  notificationBrand: {
+    fontSize: 13,
+    color: '#666',
+  },
+  notificationQuantity: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
   },
 });
 

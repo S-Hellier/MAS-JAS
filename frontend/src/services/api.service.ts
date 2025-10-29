@@ -130,6 +130,20 @@ class ApiService {
     );
     return response.data;
   }
+
+  /**
+   * Get items needing expiration notifications
+   * Uses smart rule-based thresholds based on shelf life duration
+   */
+  async getExpiringNotifications(): Promise<any> {
+    const response: AxiosResponse = await axios.get(
+      'http://10.90.153.146:3001/api/v1/notifications/expiring',
+      {
+        headers: { 'x-user-id': this.userId },
+      }
+    );
+    return response.data;
+  }
 }
 // Export singleton instance
 export const apiService = new ApiService();
