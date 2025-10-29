@@ -464,6 +464,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                           onChange={handleDateChange}
                           minimumDate={new Date()}
+                          textColor="#000000"
                           style={styles.datePicker}
                         />
                       </View>

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import pantryRoutes from './pantry.routes';
 import recipeRoutes from './recipes-routes';
 import barcodeRoutes from './barcode.routes';
+import notificationsRoutes from './notifications.routes';
 
 const router = Router();
 
@@ -9,6 +10,7 @@ const router = Router();
 router.use('/api/v1/pantry', pantryRoutes);
 router.use('/api/v1/recipes', recipeRoutes);
 router.use('/api/v1/barcode', barcodeRoutes);
+router.use('/api/v1/notifications', notificationsRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {
