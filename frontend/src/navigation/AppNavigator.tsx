@@ -1,7 +1,9 @@
 import React from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useAuth } from '../context/AuthContext';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -11,6 +13,7 @@ import ItemDetailScreen from '../screens/ItemDetailScreen';
 import EditItemScreen from '../screens/EditItemScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import GenerateRecipeScreen from '../screens/GenerateRecipeScreen';
+import LoginScreen from '../screens/LoginScreen';
 
 // Define navigation types
 export type RootTabParamList = {
@@ -168,6 +171,17 @@ const TabNavigator: React.FC = () => {
 };
 
 const AppNavigator: React.FC = () => {
+  const { user, isLoading } = useAuth();
+
+  // Show loading spinner while checking auth status
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -175,10 +189,25 @@ const AppNavigator: React.FC = () => {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="Main" component={TabNavigator} />
+        {user ? (
+          // User is logged in, show main app
+          <Stack.Screen name="Main" component={TabNavigator} />
+        ) : (
+          // User is not logged in, show login screen
+          <Stack.Screen name="Login" component={LoginScreen} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+});
 
 export default AppNavigator;

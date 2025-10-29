@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   PantryItem,
   CreatePantryItemRequest,
@@ -9,9 +10,11 @@ import {
   BarcodeLookupResponse,
 } from '../types/pantry.types';
 
+const AUTH_STORAGE_KEY = '@pantry_app_user';
+
 class ApiService {
   private api: AxiosInstance;
-  private userId: string = '816614f4-b6eb-4806-9e87-0ed87d62c317'; // Default user ID
+  private userId: string = '';
 
   constructor() {
     // For Android emulator: use 10.0.2.2 (maps to host's localhost)
@@ -24,12 +27,15 @@ class ApiService {
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': this.userId,
       },
     });
 
     // Add request interceptor to include user ID in all requests
-    this.api.interceptors.request.use((config) => {
+    this.api.interceptors.request.use(async (config) => {
+      // Get user ID from storage if not set
+      if (!this.userId) {
+        await this.loadUserId();
+      }
       config.headers['x-user-id'] = this.userId;
       return config;
     });
@@ -44,9 +50,27 @@ class ApiService {
     );
   }
 
+  // Load user ID from AsyncStorage
+  private async loadUserId(): Promise<void> {
+    try {
+      const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        this.userId = user.id;
+      }
+    } catch (error) {
+      console.error('Error loading user ID:', error);
+    }
+  }
+
   // Set user ID for API requests
   setUserId(userId: string) {
     this.userId = userId;
+  }
+
+  // Get current user ID
+  getUserId(): string {
+    return this.userId;
   }
 
   // Health check
