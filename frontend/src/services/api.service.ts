@@ -14,9 +14,10 @@ class ApiService {
   private userId: string = '816614f4-b6eb-4806-9e87-0ed87d62c317'; // Default user ID
 
   constructor() {
-    // Use your Mac's local IP address for physical devices
-    // Change this to your Mac's IP address when testing on physical devices
-    const baseURL = 'http://10.90.153.146:3001/api/v1/pantry';
+    // For Android emulator: use 10.0.2.2 (maps to host's localhost)
+    // For iOS simulator: use localhost
+    // For physical devices: use your computer's local IP address
+    const baseURL = 'http://10.0.2.2:3001/api/v1/pantry';
 
     this.api = axios.create({
       baseURL,
@@ -50,7 +51,7 @@ class ApiService {
 
   // Health check
   async healthCheck(): Promise<{ status: string; timestamp: string; version: string }> {
-    const response: AxiosResponse = await axios.get('http://10.90.153.146:3001/health');
+    const response: AxiosResponse = await axios.get('http://10.0.2.2:3001/health');
     return response.data;
   }
 
@@ -113,7 +114,7 @@ class ApiService {
    */
   async lookupBarcode(barcode: string): Promise<any> {
     const response: AxiosResponse = await axios.get(
-      `http://10.90.153.146:3001/api/v1/barcode/lookup/${barcode}`,
+      `http://10.0.2.2:3001/api/v1/barcode/lookup/${barcode}`,
       {
         headers: { 'x-user-id': this.userId },
         timeout: 15000, // 15 second timeout for external API call
@@ -124,7 +125,7 @@ class ApiService {
 
   async generateRecipe(): Promise<{ recipe: any }> {
     const response: AxiosResponse<{ recipe: any }> = await axios.post(
-      'http://10.90.153.146:3001/api/v1/recipes/generate',
+      'http://10.0.2.2:3001/api/v1/recipes/generate',
       {},
       { headers: { 'x-user-id': this.userId } }
     );
@@ -137,7 +138,7 @@ class ApiService {
    */
   async getExpiringNotifications(): Promise<any> {
     const response: AxiosResponse = await axios.get(
-      'http://10.90.153.146:3001/api/v1/notifications/expiring',
+      'http://10.0.2.2:3001/api/v1/notifications/expiring',
       {
         headers: { 'x-user-id': this.userId },
       }
