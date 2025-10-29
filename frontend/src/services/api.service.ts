@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   PantryItem,
   CreatePantryItemRequest,
@@ -9,26 +10,32 @@ import {
   BarcodeLookupResponse,
 } from '../types/pantry.types';
 
+const AUTH_STORAGE_KEY = '@pantry_app_user';
+
 class ApiService {
   private api: AxiosInstance;
-  private userId: string = '816614f4-b6eb-4806-9e87-0ed87d62c317'; // Default user ID
+  private userId: string = '';
 
   constructor() {
-    // Use your Mac's local IP address for physical devices
-    // Change this to your Mac's IP address when testing on physical devices
-    const baseURL = 'http://10.90.153.146:3001/api/v1/pantry';
+    // For Android emulator: use 10.0.2.2 (maps to host's localhost)
+    // For iOS simulator: use localhost
+    // For physical devices: use your computer's local IP address
+    const baseURL = 'http://10.0.2.2:3001/api/v1/pantry';
 
     this.api = axios.create({
       baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id': this.userId,
       },
     });
 
     // Add request interceptor to include user ID in all requests
-    this.api.interceptors.request.use((config) => {
+    this.api.interceptors.request.use(async (config) => {
+      // Get user ID from storage if not set
+      if (!this.userId) {
+        await this.loadUserId();
+      }
       config.headers['x-user-id'] = this.userId;
       return config;
     });
@@ -43,14 +50,32 @@ class ApiService {
     );
   }
 
+  // Load user ID from AsyncStorage
+  private async loadUserId(): Promise<void> {
+    try {
+      const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        this.userId = user.id;
+      }
+    } catch (error) {
+      console.error('Error loading user ID:', error);
+    }
+  }
+
   // Set user ID for API requests
   setUserId(userId: string) {
     this.userId = userId;
   }
 
+  // Get current user ID
+  getUserId(): string {
+    return this.userId;
+  }
+
   // Health check
   async healthCheck(): Promise<{ status: string; timestamp: string; version: string }> {
-    const response: AxiosResponse = await axios.get('http://10.90.153.146:3001/health');
+    const response: AxiosResponse = await axios.get('http://10.0.2.2:3001/health');
     return response.data;
   }
 
@@ -113,7 +138,7 @@ class ApiService {
    */
   async lookupBarcode(barcode: string): Promise<any> {
     const response: AxiosResponse = await axios.get(
-      `http://10.90.153.146:3001/api/v1/barcode/lookup/${barcode}`,
+      `http://10.0.2.2:3001/api/v1/barcode/lookup/${barcode}`,
       {
         headers: { 'x-user-id': this.userId },
         timeout: 15000, // 15 second timeout for external API call
@@ -124,7 +149,7 @@ class ApiService {
 
   async generateRecipe(): Promise<{ recipe: any }> {
     const response: AxiosResponse<{ recipe: any }> = await axios.post(
-      'http://10.90.153.146:3001/api/v1/recipes/generate',
+      'http://10.0.2.2:3001/api/v1/recipes/generate',
       {},
       { headers: { 'x-user-id': this.userId } }
     );
@@ -137,7 +162,7 @@ class ApiService {
    */
   async getExpiringNotifications(): Promise<any> {
     const response: AxiosResponse = await axios.get(
-      'http://10.90.153.146:3001/api/v1/notifications/expiring',
+      'http://10.0.2.2:3001/api/v1/notifications/expiring',
       {
         headers: { 'x-user-id': this.userId },
       }

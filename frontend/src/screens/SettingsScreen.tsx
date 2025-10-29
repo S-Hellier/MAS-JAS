@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/api.service';
 
 const SettingsScreen: React.FC = () => {
+  const { user, logout } = useAuth();
   const handleHealthCheck = async () => {
     try {
       const health = await apiService.healthCheck();
@@ -49,11 +51,56 @@ const SettingsScreen: React.FC = () => {
     );
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          }
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Settings</Text>
         <Text style={styles.subtitle}>Manage your app preferences</Text>
+      </View>
+
+      {/* User Account Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Account</Text>
+
+        <View style={styles.settingItem}>
+          <Text style={styles.settingLabel}>Email</Text>
+          <Text style={styles.settingValue}>{user?.email}</Text>
+        </View>
+
+        {user?.name && (
+          <View style={styles.settingItem}>
+            <Text style={styles.settingLabel}>Name</Text>
+            <Text style={styles.settingValue}>{user.name}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={[styles.settingItem, styles.logoutButton]}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -141,6 +188,19 @@ const styles = StyleSheet.create({
   settingDescription: {
     fontSize: 14,
     color: '#666',
+  },
+  settingValue: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginTop: 5,
+  },
+  logoutButton: {
+    alignItems: 'center',
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ff3b30',
   },
   footer: {
     flex: 1,
