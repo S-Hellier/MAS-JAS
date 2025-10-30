@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { User, AuthContextType, LoginResponse } from '../types/auth.types';
+import { User, AuthContextType, LoginResponse, UpdatePreferencesRequest } from '../types/auth.types';
 import { apiService } from '../services/api.service';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -78,8 +78,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updatePreferences = async (preferences: UpdatePreferencesRequest) => {
+    try {
+      setIsLoading(true);
+
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+
+      const response = await axios.put(
+        `${API_BASE_URL}/auth/preferences`,
+        preferences,
+        {
+          headers: {
+            'x-user-id': user.id,
+          },
+        }
+      );
+
+      const updatedUser = response.data.user;
+
+      // Update user in state and storage
+      setUser(updatedUser);
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error('Update preferences error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, updatePreferences }}>
       {children}
     </AuthContext.Provider>
   );

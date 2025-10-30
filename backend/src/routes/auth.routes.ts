@@ -24,4 +24,11 @@ router.get('/me', authController.getCurrentUser);
  */
 router.put('/me', authController.updateCurrentUser);
 
+/**
+ * @route   PUT /api/v1/auth/preferences
+ * @desc    Update user preferences (diet, goals, food restrictions)
+ * @access  Authenticated (requires x-user-id header)
+ */
+router.put('/preferences', authController.updatePreferences);
+
 export default router;

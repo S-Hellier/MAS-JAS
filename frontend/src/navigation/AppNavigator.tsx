@@ -14,6 +14,7 @@ import EditItemScreen from '../screens/EditItemScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import GenerateRecipeScreen from '../screens/GenerateRecipeScreen';
 import LoginScreen from '../screens/LoginScreen';
+import ProfileSetupScreen from '../screens/ProfileSetupScreen';
 
 // Define navigation types
 export type RootTabParamList = {
@@ -182,19 +183,36 @@ const AppNavigator: React.FC = () => {
     );
   }
 
+  // Create a key that changes when auth state changes
+  // This forces NavigationContainer to reset
+  const navigationKey = user
+    ? user.profile_completed
+      ? `auth-complete-${user.id}`
+      : `auth-incomplete-${user.id}`
+    : 'no-auth';
+
   return (
-    <NavigationContainer>
+    <NavigationContainer key={navigationKey}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
         }}
       >
-        {user ? (
-          // User is logged in, show main app
-          <Stack.Screen name="Main" component={TabNavigator} />
-        ) : (
-          // User is not logged in, show login screen
+        {!user ? (
+          // User not logged in
           <Stack.Screen name="Login" component={LoginScreen} />
+        ) : !user.profile_completed ? (
+          // User logged in but profile not complete
+          <>
+            <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+            <Stack.Screen name="Main" component={TabNavigator} />
+          </>
+        ) : (
+          // User logged in and profile complete
+          <>
+            <Stack.Screen name="Main" component={TabNavigator} />
+            <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
