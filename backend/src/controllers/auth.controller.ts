@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from '@/services/auth.service';
-import { LoginRequest } from '@/types/auth.types';
+import { LoginRequest, UpdatePreferencesRequest, DietType, GoalType } from '@/types/auth.types';
 
 const authService = AuthService.getInstance();
 
@@ -103,6 +103,62 @@ export async function updateCurrentUser(req: Request, res: Response) {
     });
   } catch (error) {
     console.error('Error updating user:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
+}
+
+/**
+ * Update user preferences (diet, goals, food restrictions)
+ * PUT /api/v1/auth/preferences
+ */
+export async function updatePreferences(req: Request, res: Response) {
+  try {
+    const userId = req.headers['x-user-id'] as string;
+    const { diet, goals, food_restrictions, profile_completed } = req.body as UpdatePreferencesRequest;
+
+    if (!userId) {
+      return res.status(401).json({
+        error: 'User ID not provided',
+      });
+    }
+
+    // Validate diet if provided
+    if (diet !== undefined && !Object.values(DietType).includes(diet)) {
+      return res.status(400).json({
+        error: `Invalid diet type. Must be one of: ${Object.values(DietType).join(', ')}`,
+      });
+    }
+
+    // Validate goals if provided
+    if (goals !== undefined && !Object.values(GoalType).includes(goals)) {
+      return res.status(400).json({
+        error: `Invalid goal type. Must be one of: ${Object.values(GoalType).join(', ')}`,
+      });
+    }
+
+    // Validate food_restrictions if provided
+    if (food_restrictions !== undefined && !Array.isArray(food_restrictions)) {
+      return res.status(400).json({
+        error: 'Food restrictions must be an array',
+      });
+    }
+
+    const preferences: UpdatePreferencesRequest = {};
+    if (diet !== undefined) preferences.diet = diet;
+    if (goals !== undefined) preferences.goals = goals;
+    if (food_restrictions !== undefined) preferences.food_restrictions = food_restrictions;
+    if (profile_completed !== undefined) preferences.profile_completed = profile_completed;
+
+    const user = await authService.updateUserPreferences(userId, preferences);
+
+    return res.status(200).json({
+      user,
+      message: 'Preferences updated successfully',
+    });
+  } catch (error) {
+    console.error('Error updating preferences:', error);
     return res.status(500).json({
       error: error instanceof Error ? error.message : 'Internal server error',
     });

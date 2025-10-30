@@ -3,14 +3,24 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/api.service';
 
+// Helper function to format enum values
+const formatEnumValue = (value: string | undefined) => {
+  if (!value || value === 'none') return 'Not set';
+  return value.split('_').map(word =>
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+};
+
 const SettingsScreen: React.FC = () => {
+  const navigation = useNavigation();
   const { user, logout } = useAuth();
   const handleHealthCheck = async () => {
     try {
@@ -72,8 +82,18 @@ const SettingsScreen: React.FC = () => {
     );
   };
 
+  const handleEditPreferences = () => {
+    // Navigate back to profile setup screen to edit
+    try {
+      (navigation as any).navigate('ProfileSetup');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      Alert.alert('Navigation Error', 'Unable to navigate to profile setup.');
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Settings</Text>
         <Text style={styles.subtitle}>Manage your app preferences</Text>
@@ -100,6 +120,37 @@ const SettingsScreen: React.FC = () => {
           onPress={handleLogout}
         >
           <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Dietary Preferences Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Dietary Preferences</Text>
+
+        <View style={styles.settingItem}>
+          <Text style={styles.settingLabel}>Diet Type</Text>
+          <Text style={styles.settingValue}>{formatEnumValue(user?.diet)}</Text>
+        </View>
+
+        <View style={styles.settingItem}>
+          <Text style={styles.settingLabel}>Goals</Text>
+          <Text style={styles.settingValue}>{formatEnumValue(user?.goals)}</Text>
+        </View>
+
+        <View style={styles.settingItem}>
+          <Text style={styles.settingLabel}>Food Restrictions</Text>
+          <Text style={styles.settingValue}>
+            {user?.food_restrictions && Array.isArray(user.food_restrictions) && user.food_restrictions.length > 0
+              ? user.food_restrictions.join(', ')
+              : 'None'}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.settingItem, styles.editButton]}
+          onPress={handleEditPreferences}
+        >
+          <Text style={styles.editButtonText}>Edit Preferences</Text>
         </TouchableOpacity>
       </View>
 
@@ -138,7 +189,7 @@ const SettingsScreen: React.FC = () => {
           Built with React Native & TypeScript
         </Text>
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
@@ -201,6 +252,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#ff3b30',
+  },
+  editButton: {
+    alignItems: 'center',
+    backgroundColor: '#007AFF',
+  },
+  editButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
   footer: {
     flex: 1,
