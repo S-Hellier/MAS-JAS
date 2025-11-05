@@ -15,7 +15,7 @@ import axios from 'axios';
 
 dotenv.config()
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "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";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 console.log("OpenAI Key:", process.env.OPENAI_API_KEY?.slice(0, 10) + "...");
 const LOCAL_API_BASE = process.env.LOCAL_API_BASE || "http://localhost:3001/api/v1";
 const userId = "816614f4-b6eb-4806-9e87-0ed87d62c317"
