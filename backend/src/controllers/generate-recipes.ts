@@ -6,28 +6,24 @@
  * - Parse & validate the response into a typed Recipe object
  */
 
+import { User } from "../types/auth.types";
+import { PantryItem } from "@/types/pantry.types";
 import fetch from "node-fetch";
 import { z } from "zod";
+import dotenv from 'dotenv';
+import axios from 'axios';
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+dotenv.config()
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "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";
+console.log("OpenAI Key:", process.env.OPENAI_API_KEY?.slice(0, 10) + "...");
 const LOCAL_API_BASE = process.env.LOCAL_API_BASE || "http://localhost:3001/api/v1";
+const userId = "816614f4-b6eb-4806-9e87-0ed87d62c317"
 
 if (!OPENAI_API_KEY) {
   console.error("Missing OPENAI_API_KEY environment variable.");
   process.exit(1);
 }
-
-// typecheck structure
-type Ingredient = {
-  id: string;
-  name: string;
-  category?: string;
-};
-
-type UserConstraints = {
-  allergies?: string[];
-  diets?: string[];
-};
 
 const RecipeSchema = z.object({
   title: z.string().min(1),
@@ -49,21 +45,57 @@ const RecipeSchema = z.object({
     .optional()
 });
 
-type Recipe = z.infer<typeof RecipeSchema>;
-
-
-// get ingredients in pantry
-async function fetchIngredients(): Promise<Ingredient[]> {
+// get non-expired ingredients in pantry
+async function fetchIngredients(): Promise<PantryItem[]> {
   const headers = {
-    'x-user-id': '816614f4-b6eb-4806-9e87-0ed87d62c317'
+    'x-user-id': userId
   }
 
   const res = await fetch(`${LOCAL_API_BASE}/pantry`, {headers: headers});
   if (!res.ok) {
     throw new Error(`Failed to fetch ingredients from ${LOCAL_API_BASE}/pantry: ${res.status} ${res.statusText}`);
   }
-  const data = (await res.json()) as Ingredient[];
-  return data;
+
+  const json = (await res.json()) as { data: PantryItem[] };
+  const items = json.data;
+
+  if (!Array.isArray(items)) {
+    throw new Error(`Expected an array of pantry items, got: ${JSON.stringify(json)}`);
+  }
+
+  const now = new Date();
+
+  const validIngredients = items.filter(item => {
+    const exp = new Date(item.expirationDate);
+    return exp >= now;
+  });
+
+  const sortedIngredients = validIngredients.sort((a, b) => {
+    return new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime();
+  });
+
+  console.log(sortedIngredients);
+  return sortedIngredients;
+}
+
+async function fetchUserPreferences() {
+  const res = await fetch(`${LOCAL_API_BASE}/auth/me`, {
+    headers: { 'x-user-id': userId },
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch user info');
+  }
+
+  const data = (await res.json()) as { user: User };
+
+  const { diet = 'none', goals = 'none', food_restrictions = [] } = data.user;
+
+  return {
+    diet,
+    goal: goals,
+    allergies: food_restrictions,
+  };
 }
 
 
@@ -156,8 +188,26 @@ async function callOpenAI(
 
 
 // recipe generation function
-async function generateRecipeForUser(constraints: UserConstraints) {
+async function generateRecipeForUser() {
   const allIngredients = await fetchIngredients();
+  const userPreferences = await fetchUserPreferences();
+
+  // parse ingredient data
+  const compactIngredients = allIngredients.map(item => ({
+    name: item.name,
+    category: item.category,
+    quantity: item.quantity,
+    unit: item.unit,
+    expirationDate: item.expirationDate,
+    nutritionInfo: item.nutritionInfo
+      ? {
+          calories: item.nutritionInfo.calories,
+          protein: item.nutritionInfo.protein,
+          fat: item.nutritionInfo.fat,
+          carbohydrates: item.nutritionInfo.carbohydrates
+        }
+      : undefined
+  }));
 
   // 3) Build chat messages
   const systemMessage = {
@@ -170,13 +220,16 @@ async function generateRecipeForUser(constraints: UserConstraints) {
     role: "user",
     content:
       `Create a recipe tailored to these user constraints. ` +
-      `Constraints: allergies=${JSON.stringify(constraints.allergies || [])}, diets=${JSON.stringify(constraints.diets || [])},\n` +
-      `Available ingredients:\n${JSON.stringify(allIngredients, null, 2)}\n\n` +
+      `Constraints: allergies=${JSON.stringify(userPreferences.allergies || [])}\n` +
+      `Diets=${JSON.stringify(userPreferences.diet || [])},\n` +
+      `Goal=${JSON.stringify(userPreferences.goal || "none")}\n` +
+      `Available ingredients:\n${JSON.stringify(compactIngredients, null, 2)}\n\n` +
       `Rules:\n` +
       `1) Respect diets & allergies absolutely; set allergensHandled=true if you applied special handling.\n` +
       `2) Steps are clear and numbered. Provide reasonable quantities per serving.\n` +
-      `3) You can generate recipes that recipe that extra ingredient, but must let the user know that it has to be bought.\n` +
-      `4) Return result by calling the function create_recipe with the exact schema provided.`,
+      `3) Prioritize using ingreidents that are soon to expire\n` +
+      `4) You can generate recipes that recipe that extra ingredient, but must let the user know that it has to be bought.\n` +
+      `5) Return result by calling the function create_recipe with the exact schema provided.`,
   };
 
   const model = "gpt-4o-mini";
@@ -238,18 +291,13 @@ async function generateRecipeForUser(constraints: UserConstraints) {
 
 // recipe generation test
 async function main() {
-  const userConstraints: UserConstraints = {
-    allergies: ["nuts"],
-    diets: ["vegetarian"],
-  };
-
   try {
     console.log("Fetching ingredients and generating recipe...");
-    const recipe = await generateRecipeForUser(userConstraints);
+    const recipe = await generateRecipeForUser();
     console.log("=== Generated Recipe ===");
     console.log(JSON.stringify(recipe, null, 2));
   } catch (err) {
-    console.error("Error generating recipe:", err);
+      console.error("Error generating recipe:", err);
   }
 }
 

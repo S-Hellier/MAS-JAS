@@ -8,7 +8,7 @@ CREATE TYPE food_category AS ENUM (
 );
 
 CREATE TYPE quantity_unit AS ENUM (
-  'pieces', 'grams', 'kilograms', 'pounds', 'ounces', 'liters', 
+  'pieces', 'grams', 'kilograms', 'pounds', 'ounces', 'liters', 'gallons',
   'milliliters', 'cups', 'tablespoons', 'teaspoons', 'packages', 'cans', 'bottles'
 );
 

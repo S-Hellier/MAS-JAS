@@ -10,6 +10,10 @@
 -- Uncomment the following lines if you want to seed directly via SQL instead of TypeScript:
 
 /*
+INSERT INTO users (id, email, name)
+VALUES ('816614f4-b6eb-4806-9e87-0ed87d62c317', 'seeduser@example.com', 'Seed User')
+ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO pantry_items (
   name, brand, quantity, unit, category, expiration_date, 
   nutrition_info, barcode, notes, user_id
@@ -24,7 +28,7 @@ INSERT INTO pantry_items (
   '{"calories": 105, "protein": 1.3, "carbohydrates": 27, "fat": 0.4, "fiber": 3.1, "sugar": 14.4, "sodium": 1, "servingSize": "1", "servingUnit": "medium banana"}',
   NULL,
   'Perfect ripeness for smoothies',
-  'default-user'
+  'default-user'git 
 ),
 (
   'Jasmine Rice',

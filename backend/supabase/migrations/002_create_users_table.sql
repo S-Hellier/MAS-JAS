@@ -28,3 +28,7 @@ ALTER TABLE pantry_items
   ADD CONSTRAINT fk_pantry_items_user
   FOREIGN KEY (user_id) REFERENCES users(id)
   ON DELETE CASCADE;
+
+INSERT INTO users (id, email, name)
+VALUES ('816614f4-b6eb-4806-9e87-0ed87d62c317', 'seeduser@example.com', 'Seed User')
+ON CONFLICT (id) DO NOTHING;

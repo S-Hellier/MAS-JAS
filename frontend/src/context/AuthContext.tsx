@@ -7,7 +7,7 @@ import { apiService } from '../services/api.service';
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = '@pantry_app_user';
-const API_BASE_URL = 'http://10.0.2.2:3001/api/v1';
+const API_BASE_URL = 'http://localhost:3001/api/v1';
 
 interface AuthProviderProps {
   children: ReactNode;
