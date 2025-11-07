@@ -15,7 +15,7 @@ import axios from 'axios';
 
 dotenv.config()
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+//const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const LOCAL_API_BASE = process.env.LOCAL_API_BASE || "http://localhost:3001/api/v1";
 const userId = "816614f4-b6eb-4806-9e87-0ed87d62c317"
 
@@ -29,7 +29,7 @@ const RecipeSchema = z.object({
   servings: z.number().int().positive(),
   ingredients: z.array(
     z.object({
-      name: z.string(),
+      name: z.string(), 
       quantity: z.string(),
     })
   ),
