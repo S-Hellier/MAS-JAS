@@ -4,6 +4,7 @@ import recipeRoutes from './recipes-routes';
 import barcodeRoutes from './barcode.routes';
 import notificationsRoutes from './notifications.routes';
 import authRoutes from './auth.routes';
+import adminRoutes from './admin.routes';
 
 
 const router = Router();
@@ -14,6 +15,7 @@ router.use('/api/v1/pantry', pantryRoutes);
 router.use('/api/v1/recipes', recipeRoutes);
 router.use('/api/v1/barcode', barcodeRoutes);
 router.use('/api/v1/notifications', notificationsRoutes);
+router.use('/api/v1/admin', adminRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {
