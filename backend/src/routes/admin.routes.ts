@@ -1,41 +1,37 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { getOverviewMetrics, getRecipeMetrics, getAllMetrics } from '../controllers/admin.controller';
+import { Router } from 'express';
+import { getOverviewMetrics, getRecipeMetrics, getAllMetrics, getDailyMetrics } from '../controllers/admin.controller';
+import { setUserAsAdmin, removeUserAdmin, getAllAdmins, checkUserAdmin } from '../controllers/admin-user.controller';
+import { verifyAdminStatus, getCurrentAdminUser } from '../controllers/admin-auth.controller';
+import { authenticateAdmin, requireAdminUser } from '../middleware/admin-auth.middleware';
 
 /**
  * Admin Routes
  * 
  * These routes provide metrics and analytics for admin dashboard
- * All routes require ADMIN_API_KEY in request header
+ * 
+ * Authentication:
+ * - Supports API Key authentication (x-admin-api-key header) for external services
+ * - Supports User-based authentication (x-user-id header) for admin dashboard
+ * - User-based auth requires the user to have is_admin = true
+ * 
+ * Either authentication method is valid, providing flexibility for different use cases.
  */
 const router = Router();
 
 /**
- * Middleware to verify admin API key
+ * GET /api/v1/admin/auth/verify
+ * Verify if current user (from x-user-id header) is an admin
+ * Useful for admin dashboard login verification
+ * Does NOT require admin authentication - just checks user status
+ * 
+ * IMPORTANT: This route must be BEFORE the authenticateAdmin middleware
+ * because users need to verify their admin status before they can authenticate
  */
-const verifyAdminKey = (req: Request, res: Response, next: NextFunction) => {
-  const adminKey = req.headers['x-admin-api-key'] as string;
-  const expectedKey = process.env.ADMIN_API_KEY;
+router.get('/auth/verify', verifyAdminStatus);
 
-  if (!expectedKey) {
-    console.warn('ADMIN_API_KEY not set in environment variables');
-    return res.status(500).json({
-      success: false,
-      error: 'Admin API key not configured',
-    });
-  }
-
-  if (!adminKey || adminKey !== expectedKey) {
-    return res.status(401).json({
-      success: false,
-      error: 'Unauthorized - Invalid admin API key',
-    });
-  }
-
-  next();
-};
-
-// Apply admin key verification to all routes
-router.use(verifyAdminKey);
+// Apply flexible admin authentication to all routes below
+// This allows either API key OR user-based authentication
+router.use(authenticateAdmin);
 
 /**
  * GET /api/v1/admin/metrics
@@ -54,6 +50,43 @@ router.get('/metrics/overview', getOverviewMetrics);
  * Get recipe generation metrics
  */
 router.get('/metrics/recipes', getRecipeMetrics);
+
+/**
+ * GET /api/v1/admin/metrics/daily
+ * Get daily growth metrics for the past 7 days
+ */
+router.get('/metrics/daily', getDailyMetrics);
+
+/**
+ * POST /api/v1/admin/users/set-admin
+ * Set a user as admin by email
+ */
+router.post('/users/set-admin', setUserAsAdmin);
+
+/**
+ * POST /api/v1/admin/users/remove-admin
+ * Remove admin status from a user by email
+ */
+router.post('/users/remove-admin', removeUserAdmin);
+
+/**
+ * GET /api/v1/admin/users/admins
+ * Get all admin users
+ */
+router.get('/users/admins', getAllAdmins);
+
+/**
+ * GET /api/v1/admin/users/check-admin/:email
+ * Check if a user is an admin by email
+ */
+router.get('/users/check-admin/:email', checkUserAdmin);
+
+/**
+ * GET /api/v1/admin/auth/me
+ * Get current admin user information
+ * Requires user-based admin authentication (not API key)
+ */
+router.get('/auth/me', requireAdminUser, getCurrentAdminUser);
 
 export default router;
 
