@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { saveRecipeHandler, getSavedRecipesHandler } from "@/controllers/recipe.controller";
+import { saveRecipeHandler, getSavedRecipesHandler, deleteRecipeHandler } from "@/controllers/recipe.controller";
 import { generateRecipeForUser } from "@/controllers/generate-recipes";
 import { authMiddleware } from "@/services/auth.middleware";
 import { supabase } from "@/config/supabase";
@@ -9,7 +9,7 @@ const router = Router();
 // All recipe routes require auth
 router.use(authMiddleware);
 
-router.post("/generate", async (req, res) => { // add leading
+router.post("/generate", async (req, res) => {
   try { 
     const { allergies, diets } = req.body;
     const recipe = await generateRecipeForUser({ allergies, diets });
@@ -19,10 +19,9 @@ router.post("/generate", async (req, res) => { // add leading
     res.status(500).json({ error: err.message }); 
   } 
 });
-
-// Save a recipe
 router.post("/save", saveRecipeHandler);
 router.get("/saved", authMiddleware, getSavedRecipesHandler);
+router.delete("/delete/:id", authMiddleware, deleteRecipeHandler);
 
 
 export default router;

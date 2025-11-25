@@ -33,4 +33,17 @@ export class RecipeService {
     if (error) throw new Error(error.message);
     return data;
   }
+
+  async deleteRecipe(userId: string, recipeId: string) {
+    const { data, error } = await supabase
+      .from("recipes")
+      .delete()
+      .eq("id", recipeId)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  }
 }

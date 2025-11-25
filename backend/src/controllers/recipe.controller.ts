@@ -47,3 +47,21 @@ export const getSavedRecipesHandler = async (req: Request, res: Response) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+export const deleteRecipeHandler = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const recipeId = req.params.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const deleted = await recipeService.deleteRecipe(userId, recipeId);
+
+    return res.status(200).json({ message: "Recipe deleted successfully", recipe: deleted });
+  } catch (error: any) {
+    console.error("Failed to delete recipe:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};

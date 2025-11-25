@@ -198,6 +198,25 @@ class ApiService {
       throw error;
     }
   }
+
+  async deleteRecipe(recipeId: string): Promise<void> {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3001/api/v1/recipes/delete/${recipeId}`,
+        {
+          headers: { 
+            'x-user-id': this.userId,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error(error.message);
+      throw error;
+    }
+  }
   
 }
 // Export singleton instance
