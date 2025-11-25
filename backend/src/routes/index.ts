@@ -5,6 +5,7 @@ import barcodeRoutes from './barcode.routes';
 import notificationsRoutes from './notifications.routes';
 import authRoutes from './auth.routes';
 
+
 const router = Router();
 
 // API versioning
@@ -22,5 +23,6 @@ router.get('/health', (req, res) => {
     version: '1.0.0'
   });
 });
+
 
 export default router;

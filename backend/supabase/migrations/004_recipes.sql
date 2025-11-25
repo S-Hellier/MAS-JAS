@@ -1,11 +1,10 @@
-create table public.recipes (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid not null references auth.users(id) on delete cascade,
+create table recipes (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references users(id),
   title text not null,
-  servings int,
+  servings int not null,
   ingredients jsonb not null,
   steps jsonb not null,
   nutrition jsonb,
-  created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now()
+  created_at timestamptz default now()
 );

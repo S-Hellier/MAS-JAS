@@ -15,6 +15,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import GenerateRecipeScreen from '../screens/GenerateRecipeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import ProfileSetupScreen from '../screens/ProfileSetupScreen';
+import CookbookScreen from "../screens/CookBookScreen";
 
 // Define navigation types
 export type RootTabParamList = {
@@ -110,6 +111,11 @@ const HomeStackNavigator: React.FC = () => {
         name="GenerateRecipe"
         component={GenerateRecipeScreen}
         options={{ title: 'Generate Recipe' }}
+      />
+      <HomeStack.Screen
+        name="Cookbook"
+        component={CookbookScreen}
+        options={{ title: 'My Cookbook' }}
       />
     </HomeStack.Navigator>
   );

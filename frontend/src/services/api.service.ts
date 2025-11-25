@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Recipe } from "../types/recipe.types";
 import {
   PantryItem,
   CreatePantryItemRequest,
@@ -172,19 +173,30 @@ class ApiService {
 
   async saveRecipe(recipe: any) {
     const response = await axios.post(
-      'http://localhost:3001/api/v1/recipes/generate', 
-      recipe, 
+      'http://localhost:3001/api/v1/recipes/save',
+      recipe,
       { headers: { 'x-user-id': this.userId } }
     );
     return response.data;
   }
   
-  async getUserRecipes(): Promise<any[]> {
-    const response = await axios.get(
-      'http://localhost:3001/api/v1/recipes', 
-      { headers: { 'x-user-id': this.userId } }
-    );
-    return response.data.data || [];
+  async getSavedRecipes(): Promise<Recipe[]> {
+    try {
+      const response = await axios.get(
+        'http://localhost:3001/api/v1/recipes/saved',
+        {
+          headers: { 
+            'x-user-id': this.userId,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+      return response.data.data || [];
+    } catch (error: any) {
+      console.error(error.message);
+      throw error;
+    }
   }
   
 }
