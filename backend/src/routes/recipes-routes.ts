@@ -10,14 +10,19 @@ const router = Router();
 router.use(authMiddleware);
 
 router.post("/generate", async (req, res) => {
-  try { 
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const { allergies, diets } = req.body;
-    const recipe = await generateRecipeForUser({ allergies, diets });
-    res.json({ recipe }); 
-  } catch (err: any) { 
+    const recipe = await generateRecipeForUser({ userId, allergies, diets });
+    res.json({ recipe });
+  } catch (err: any) {
     console.error("Recipe generation failed:", err);
-    res.status(500).json({ error: err.message }); 
-  } 
+    res.status(500).json({ error: err.message });
+  }
 });
 router.post("/save", saveRecipeHandler);
 router.get("/saved", authMiddleware, getSavedRecipesHandler);

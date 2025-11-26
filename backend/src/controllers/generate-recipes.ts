@@ -17,7 +17,6 @@ dotenv.config()
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const LOCAL_API_BASE = process.env.LOCAL_API_BASE || "http://localhost:3001/api/v1";
-const userId = "816614f4-b6eb-4806-9e87-0ed87d62c317"
 
 if (!OPENAI_API_KEY) {
   console.error("Missing OPENAI_API_KEY environment variable.");
@@ -45,7 +44,7 @@ const RecipeSchema = z.object({
 });
 
 // get non-expired ingredients in pantry
-async function fetchIngredients(): Promise<PantryItem[]> {
+async function fetchIngredients(userId: string): Promise<PantryItem[]> {
   const headers = {
     'x-user-id': userId
   }
@@ -77,7 +76,7 @@ async function fetchIngredients(): Promise<PantryItem[]> {
   return sortedIngredients;
 }
 
-async function fetchUserPreferences() {
+async function fetchUserPreferences(userId: string) {
   const res = await fetch(`${LOCAL_API_BASE}/auth/me`, {
     headers: { 'x-user-id': userId },
   });
@@ -187,9 +186,14 @@ async function callOpenAI(
 
 
 // recipe generation function
-async function generateRecipeForUser() {
-  const allIngredients = await fetchIngredients();
-  const userPreferences = await fetchUserPreferences();
+async function generateRecipeForUser(options?: { userId?: string; allergies?: string[]; diets?: string[] }) {
+  const userId = options?.userId;
+  if (!userId) {
+    throw new Error('User ID is required for recipe generation');
+  }
+
+  const allIngredients = await fetchIngredients(userId);
+  const userPreferences = await fetchUserPreferences(userId);
 
   // parse ingredient data
   const compactIngredients = allIngredients.map(item => ({

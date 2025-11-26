@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import { Colors, BorderRadius, Shadows, Spacing } from '../theme';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -52,8 +53,8 @@ const LoginScreen: React.FC = () => {
     >
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Welcome to Pantry App</Text>
-          <Text style={styles.subtitle}>Sign in to manage your pantry</Text>
+          <Text style={styles.title}>Welcome to PantryPartner</Text>
+          <Text style={styles.subtitle}>Your friendly kitchen companion</Text>
         </View>
 
         <View style={styles.form}>
@@ -62,7 +63,7 @@ const LoginScreen: React.FC = () => {
             <TextInput
               style={styles.input}
               placeholder="your.email@example.com"
-              placeholderTextColor="#999"
+              placeholderTextColor={Colors.placeholder}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -77,7 +78,7 @@ const LoginScreen: React.FC = () => {
             <TextInput
               style={styles.input}
               placeholder="Your Name"
-              placeholderTextColor="#999"
+              placeholderTextColor={Colors.placeholder}
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
@@ -109,12 +110,12 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: Spacing.lg,
   },
   header: {
     marginBottom: 40,
@@ -123,53 +124,55 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    color: Colors.primary,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   form: {
     width: '100%',
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
     padding: 15,
     fontSize: 16,
-    color: '#333',
+    color: Colors.textPrimary,
+    ...Shadows.small,
   },
   loginButton: {
-    backgroundColor: '#007AFF',
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    padding: Spacing.base,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.lg,
+    ...Shadows.medium,
   },
   loginButtonDisabled: {
-    backgroundColor: '#999',
+    backgroundColor: Colors.disabled,
   },
   loginButtonText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   infoText: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 18,
   },
