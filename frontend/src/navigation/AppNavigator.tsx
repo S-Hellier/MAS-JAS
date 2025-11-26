@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
+import { Colors } from '../theme';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -41,16 +42,16 @@ const PantryStackNavigator: React.FC = () => {
     <PantryStack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: Colors.surface,
           borderBottomWidth: 1,
-          borderBottomColor: '#e0e0e0',
+          borderBottomColor: Colors.border,
         },
         headerTitleStyle: {
           fontSize: 18,
           fontWeight: '600',
-          color: '#333',
+          color: Colors.textPrimary,
         },
-        headerTintColor: '#007AFF',
+        headerTintColor: Colors.primary,
       }}
     >
       <PantryStack.Screen
@@ -90,16 +91,16 @@ const HomeStackNavigator: React.FC = () => {
     <HomeStack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: Colors.surface,
           borderBottomWidth: 1,
-          borderBottomColor: '#e0e0e0',
+          borderBottomColor: Colors.border,
         },
         headerTitleStyle: {
           fontSize: 18,
           fontWeight: '600',
-          color: '#333',
+          color: Colors.textPrimary,
         },
-        headerTintColor: '#007AFF',
+        headerTintColor: Colors.primary,
       }}
     >
       <HomeStack.Screen
@@ -125,25 +126,25 @@ const TabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: Colors.surface,
           borderTopWidth: 1,
-          borderTopColor: '#e0e0e0',
+          borderTopColor: Colors.border,
           paddingBottom: 5,
           paddingTop: 5,
           height: 60,
         },
         headerStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: Colors.surface,
           borderBottomWidth: 1,
-          borderBottomColor: '#e0e0e0',
+          borderBottomColor: Colors.border,
         },
         headerTitleStyle: {
           fontSize: 18,
           fontWeight: '600',
-          color: '#333',
+          color: Colors.textPrimary,
         },
       }}
     >
@@ -184,7 +185,7 @@ const AppNavigator: React.FC = () => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
 });
 

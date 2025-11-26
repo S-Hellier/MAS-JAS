@@ -13,6 +13,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { RootState, AppDispatch } from '../store';
 import { fetchPantryItems, fetchExpiringItems, fetchExpiredItems } from '../store/pantrySlice';
 import apiService from '../services/api.service';
+import { Colors, BorderRadius, Shadows, Spacing } from '../theme';
 
 const HomeScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -70,14 +71,14 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.title}>Pantry Manager</Text>
-          <Text style={styles.subtitle}>Keep track of your food inventory</Text>
+          <Text style={styles.title}>PantryPartner</Text>
+          <Text style={styles.subtitle}>Your friendly kitchen companion</Text>
         </View>
 
         {/* Smart Expiration Notifications */}
         {loadingNotifications ? (
           <View style={styles.notificationsLoading}>
-            <ActivityIndicator size="small" color="#007AFF" />
+            <ActivityIndicator size="small" color={Colors.primary} />
             <Text style={styles.loadingNotificationsText}>Checking expiration alerts...</Text>
           </View>
         ) : notifications.length > 0 ? (
@@ -133,7 +134,7 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#34C759', marginTop: 10 }]}
+            style={[styles.actionButton, styles.actionButtonAccent]}
             onPress={() => navigation.navigate('GenerateRecipe')}
           >
             <Text style={styles.actionButtonText}>Generate Recipe</Text>
@@ -174,125 +175,116 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
   },
   header: {
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: Spacing.lg,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: Colors.border,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.primary,
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   statsContainer: {
     flexDirection: 'row',
-    padding: 20,
+    padding: Spacing.lg,
     justifyContent: 'space-around',
   },
   statCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
+    backgroundColor: Colors.surface,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Shadows.card,
   },
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: Colors.primary,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: Colors.textSecondary,
     marginTop: 5,
   },
   actionsContainer: {
-    padding: 20,
+    padding: Spacing.lg,
   },
   actionButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.primary,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
+    marginBottom: Spacing.md,
+    ...Shadows.medium,
+  },
+  actionButtonAccent: {
+    backgroundColor: Colors.accent,
   },
   actionButtonText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   loadingContainer: {
-    padding: 20,
+    padding: Spacing.lg,
     alignItems: 'center',
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   errorContainer: {
-    padding: 20,
-    backgroundColor: '#ffebee',
-    margin: 20,
-    borderRadius: 10,
+    padding: Spacing.lg,
+    backgroundColor: Colors.notificationToday,
+    margin: Spacing.lg,
+    borderRadius: BorderRadius.md,
   },
   errorText: {
-    color: '#c62828',
+    color: Colors.error,
     fontSize: 14,
   },
   recentItemsContainer: {
-    padding: 20,
+    padding: Spacing.lg,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.textPrimary,
     marginBottom: 15,
   },
   itemCard: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.surface,
     padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.md,
+    ...Shadows.small,
   },
   itemName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.textPrimary,
     marginBottom: 5,
   },
   itemDetails: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.textSecondary,
     marginBottom: 3,
   },
   itemExpiry: {
     fontSize: 12,
-    color: '#999',
+    color: Colors.textTertiary,
   },
   // Notification styles
   notificationsLoading: {
@@ -300,59 +292,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    marginHorizontal: 20,
-    marginTop: 10,
-    backgroundColor: '#f0f8ff',
-    borderRadius: 10,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
+    backgroundColor: Colors.notificationInfo,
+    borderRadius: BorderRadius.md,
   },
   loadingNotificationsText: {
-    marginLeft: 10,
+    marginLeft: Spacing.md,
     fontSize: 14,
-    color: '#007AFF',
+    color: Colors.primary,
   },
   notificationsContainer: {
-    padding: 20,
-    paddingBottom: 10,
+    padding: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
   notificationsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
   },
   notificationCard: {
-    backgroundColor: '#fff3cd',
+    backgroundColor: Colors.notificationWarning,
     padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.md,
     borderLeftWidth: 4,
-    borderLeftColor: '#ffc107',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    borderLeftColor: Colors.warning,
+    ...Shadows.small,
   },
   notificationToday: {
-    backgroundColor: '#ffebee',
-    borderLeftColor: '#f44336',
+    backgroundColor: Colors.notificationToday,
+    borderLeftColor: Colors.error,
   },
   notificationTomorrow: {
-    backgroundColor: '#fff3e0',
-    borderLeftColor: '#ff9800',
+    backgroundColor: Colors.notificationTomorrow,
+    borderLeftColor: Colors.expiringUrgent,
   },
   notificationUrgent: {
-    backgroundColor: '#fff9e0',
-    borderLeftColor: '#ffc107',
+    backgroundColor: Colors.notificationWarning,
+    borderLeftColor: Colors.warning,
   },
   notificationMessage: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   notificationDetails: {
     flexDirection: 'row',
@@ -361,11 +346,11 @@ const styles = StyleSheet.create({
   },
   notificationBrand: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   notificationQuantity: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.textSecondary,
     fontWeight: '500',
   },
 });
