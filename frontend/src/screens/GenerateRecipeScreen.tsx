@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { apiService } from "../services/api.service";
 import { Recipe } from "../types/recipe.types";
+import { Colors, BorderRadius, Shadows, Spacing } from "../theme";
 
 export default function GenerateRecipeScreen() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -62,7 +63,7 @@ export default function GenerateRecipeScreen() {
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={Colors.textInverse} />
         ) : (
           <Text style={styles.buttonText}>Generate Recipe</Text>
         )}
@@ -88,11 +89,11 @@ export default function GenerateRecipeScreen() {
           ))}
 
           <TouchableOpacity
-            style={[styles.button, { marginTop: 20, backgroundColor: "#34C759" }]}
+            style={[styles.button, styles.saveButton]}
             onPress={handleSaveRecipe}
             disabled={saving}
           >
-            {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Save Recipe</Text>}
+            {saving ? <ActivityIndicator color={Colors.textInverse} /> : <Text style={styles.buttonText}>Save Recipe</Text>}
           </TouchableOpacity>
         </View>
       )}
@@ -102,48 +103,58 @@ export default function GenerateRecipeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: Spacing.base,
+    backgroundColor: Colors.background,
   },
   header: {
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: Spacing.base,
+    color: Colors.textPrimary,
   },
   button: {
-    backgroundColor: "#007AFF",
-    padding: 16,
-    borderRadius: 10,
+    backgroundColor: Colors.primary,
+    padding: Spacing.base,
+    borderRadius: BorderRadius.md,
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
+    ...Shadows.medium,
+  },
+  saveButton: {
+    backgroundColor: Colors.accent,
+    marginTop: Spacing.lg,
   },
   buttonText: {
-    color: "#fff",
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: "600",
   },
   recipeContainer: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    elevation: 3,
+    backgroundColor: Colors.surface,
+    padding: Spacing.base,
+    borderRadius: BorderRadius.lg,
+    ...Shadows.card,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 4,
+    color: Colors.textPrimary,
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
-    marginBottom: 10,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
   },
   section: {
     fontSize: 18,
     fontWeight: "600",
-    marginTop: 12,
+    marginTop: Spacing.md,
+    color: Colors.textPrimary,
   },
   text: {
     fontSize: 16,
     marginVertical: 2,
+    color: Colors.textPrimary,
   },
 });
