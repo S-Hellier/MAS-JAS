@@ -130,17 +130,22 @@ const TabNavigator: React.FC = () => {
         tabBarInactiveTintColor: Colors.textTertiary,
         tabBarShowIcon: false,
         tabBarLabelStyle: {
-          fontSize: 14,
+          fontSize: 16,
           fontWeight: '600',
-          marginBottom: 8,
+          marginTop: 0,
+          marginBottom: 0,
+        },
+        tabBarItemStyle: {
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         tabBarStyle: {
           backgroundColor: Colors.surface,
           borderTopWidth: 1,
           borderTopColor: Colors.border,
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          height: 50,
+          paddingTop: 0,
+          paddingBottom: 0,
         },
         headerStyle: {
           backgroundColor: Colors.surface,
