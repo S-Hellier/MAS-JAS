@@ -128,6 +128,12 @@ const TabNavigator: React.FC = () => {
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textTertiary,
+        tabBarShowIcon: false,
+        tabBarLabelStyle: {
+          fontSize: 14,
+          fontWeight: '600',
+          marginBottom: 8,
+        },
         tabBarStyle: {
           backgroundColor: Colors.surface,
           borderTopWidth: 1,
