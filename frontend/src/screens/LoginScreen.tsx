@@ -92,7 +92,7 @@ const LoginScreen: React.FC = () => {
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={Colors.textInverse} />
             ) : (
               <Text style={styles.loginButtonText}>Sign In</Text>
             )}
