@@ -160,7 +160,8 @@ const TabNavigator: React.FC = () => {
         options={{
           title: 'Home',
           tabBarLabel: 'Home',
-          headerShown: false
+          headerShown: false,
+          tabBarIcon: () => null,
         }}
       />
       <Tab.Screen
@@ -170,6 +171,7 @@ const TabNavigator: React.FC = () => {
           title: 'My Pantry',
           tabBarLabel: 'Pantry',
           headerShown: false,
+          tabBarIcon: () => null,
         }}
       />
       <Tab.Screen
@@ -178,6 +180,7 @@ const TabNavigator: React.FC = () => {
         options={{
           title: 'Settings',
           tabBarLabel: 'Settings',
+          tabBarIcon: () => null,
         }}
       />
     </Tab.Navigator>
