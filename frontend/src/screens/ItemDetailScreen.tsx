@@ -15,6 +15,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { fetchPantryItem, deletePantryItem } from '../store/pantrySlice';
 import { RootState, AppDispatch } from '../store';
 import { PantryItem } from '../types/pantry.types';
+import { Colors, BorderRadius, Shadows, Spacing } from '../theme';
 
 type PantryStackParamList = {
   PantryList: undefined;
@@ -43,11 +44,11 @@ const ItemDetailScreen: React.FC = () => {
     const daysUntilExpiration = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysUntilExpiration < 0) {
-      return { status: 'Expired', color: '#ef4444', days: Math.abs(daysUntilExpiration) };
+      return { status: 'Expired', color: Colors.expired, days: Math.abs(daysUntilExpiration) };
     } else if (daysUntilExpiration <= 7) {
-      return { status: 'Expiring Soon', color: '#f59e0b', days: daysUntilExpiration };
+      return { status: 'Expiring Soon', color: Colors.expiringSoon, days: daysUntilExpiration };
     } else {
-      return { status: 'Good', color: '#10b981', days: daysUntilExpiration };
+      return { status: 'Good', color: Colors.good, days: daysUntilExpiration };
     }
   };
 
@@ -72,7 +73,7 @@ const ItemDetailScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Loading item details...</Text>
         </View>
       </SafeAreaView>
@@ -280,127 +281,127 @@ const ItemDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
   },
   centerContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: Spacing.lg,
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: Spacing.md,
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   errorText: {
     fontSize: 16,
-    color: '#ef4444',
+    color: Colors.error,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   backButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
   backButtonText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   header: {
-    backgroundColor: '#fff',
-    padding: 20,
+    backgroundColor: Colors.surface,
+    padding: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
+    borderBottomColor: Colors.border,
   },
   itemName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: Colors.textPrimary,
     marginBottom: 5,
   },
   itemBrand: {
     fontSize: 18,
-    color: '#6b7280',
-    marginBottom: 10,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
   },
   categoryBadge: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 12,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.md,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: BorderRadius.pill,
     alignSelf: 'flex-start',
   },
   categoryText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 14,
     fontWeight: '600',
   },
   section: {
-    backgroundColor: '#fff',
-    marginTop: 10,
-    padding: 20,
+    backgroundColor: Colors.surface,
+    marginTop: Spacing.md,
+    padding: Spacing.lg,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#e5e5e5',
+    borderColor: Colors.border,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: Colors.textPrimary,
     marginBottom: 15,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
   },
   infoLabel: {
     fontSize: 16,
-    color: '#6b7280',
+    color: Colors.textSecondary,
     fontWeight: '500',
   },
   infoValue: {
     fontSize: 16,
-    color: '#1f2937',
+    color: Colors.textPrimary,
     fontWeight: '400',
   },
   expirationStatusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: Spacing.md,
   },
   statusBadge: {
-    paddingHorizontal: 12,
+    paddingHorizontal: Spacing.md,
     paddingVertical: 6,
-    borderRadius: 12,
-    marginRight: 10,
+    borderRadius: BorderRadius.md,
+    marginRight: Spacing.md,
   },
   statusText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 14,
     fontWeight: '600',
   },
   daysText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: Colors.textSecondary,
   },
   notesContainer: {
-    marginTop: 10,
+    marginTop: Spacing.md,
   },
   notesText: {
     fontSize: 16,
-    color: '#1f2937',
+    color: Colors.textPrimary,
     marginTop: 5,
     lineHeight: 22,
   },
@@ -412,29 +413,30 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: 15,
     borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
+    borderTopColor: Colors.border,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    ...Shadows.large,
   },
   actionButton: {
     flex: 1,
     paddingVertical: 15,
-    borderRadius: 8,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
     marginHorizontal: 5,
   },
   editButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.primary,
   },
   deleteButton: {
-    backgroundColor: '#ef4444',
+    backgroundColor: Colors.error,
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
