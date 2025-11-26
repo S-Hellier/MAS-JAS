@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  ActivityIndicator, 
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
   StyleSheet,
   Alert,
   TouchableOpacity,
@@ -13,6 +13,7 @@ import {
 
 import { apiService } from "../services/api.service";
 import { Recipe } from "../types/recipe.types";
+import { Colors, BorderRadius, Shadows, Spacing } from "../theme";
 
 export default function CookbookScreen() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -78,8 +79,8 @@ export default function CookbookScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" />
-        <Text style={{ marginTop: 10 }}>Loading recipes...</Text>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>Loading recipes...</Text>
       </View>
     );
   }
@@ -87,10 +88,10 @@ export default function CookbookScreen() {
   if (error) {
     return (
       <View style={styles.container}>
-        <Text style={{ color: "red", fontSize: 16, marginBottom: 10 }}>
+        <Text style={styles.errorText}>
           Error: {error}
         </Text>
-        <Text style={{ fontSize: 12, color: "#666", marginBottom: 20 }}>
+        <Text style={styles.errorSubtext}>
           Check console for full details
         </Text>
       </View>
@@ -214,181 +215,193 @@ export default function CookbookScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-    paddingHorizontal: 16,
+    backgroundColor: Colors.background,
+    paddingHorizontal: Spacing.base,
   },
-  header: { 
-    fontSize: 28, 
-    fontWeight: "bold", 
-    marginBottom: 16,
-    marginTop: 12,
+  loadingText: {
+    marginTop: Spacing.sm,
+    fontSize: 16,
+    color: Colors.textSecondary,
   },
-  empty: { 
-    marginTop: 20, 
-    fontSize: 18, 
-    color: "#888" 
+  errorText: {
+    color: Colors.error,
+    fontSize: 16,
+    marginBottom: Spacing.sm,
+  },
+  errorSubtext: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.lg,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: Spacing.base,
+    marginTop: Spacing.md,
+    color: Colors.textPrimary,
+  },
+  empty: {
+    marginTop: Spacing.lg,
+    fontSize: 18,
+    color: Colors.textSecondary,
   },
   cardsContainer: {
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
   },
   card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    backgroundColor: Colors.surface,
+    padding: Spacing.base,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
+    ...Shadows.card,
   },
-  cardTitle: { 
-    fontSize: 18, 
-    fontWeight: "bold", 
-    marginBottom: 8,
-    color: "#333",
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: Spacing.sm,
+    color: Colors.textPrimary,
   },
-  cardSubtitle: { 
-    fontSize: 14, 
-    color: "#666", 
+  cardSubtitle: {
+    fontSize: 14,
+    color: Colors.textSecondary,
     marginBottom: 6,
   },
   cardInfo: {
     fontSize: 13,
-    color: "#999",
-    marginBottom: 10,
+    color: Colors.textTertiary,
+    marginBottom: Spacing.sm,
   },
   cardTapHint: {
     fontSize: 12,
-    color: "#0066cc",
+    color: Colors.primary,
     fontStyle: "italic",
   },
-  
+
   // Modal Styles
   modalContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    borderBottomColor: Colors.border,
   },
   backButton: {
-    padding: 8,
+    padding: Spacing.sm,
   },
   backButtonText: {
     fontSize: 14,
-    color: "#0066cc",
+    color: Colors.primary,
     fontWeight: "600",
   },
   deleteButton: {
     width: 20,
     height: 20,
     borderRadius: 25,
-    backgroundColor: "#ff4444",
+    backgroundColor: Colors.error,
     justifyContent: "center",
     alignItems: "center",
   },
   deleteButtonText: {
-    color: "white",
+    color: Colors.textInverse,
     fontSize: 10,
     fontWeight: "bold",
   },
   recipeTitle: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    color: Colors.textPrimary,
   },
   modalContent: {
     flex: 1,
-    padding: 16,
+    padding: Spacing.base,
   },
   infoSection: {
-    backgroundColor: "#f9f9f9",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
+    backgroundColor: Colors.background,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.lg,
   },
   infoLabel: {
     fontSize: 12,
-    color: "#666",
+    color: Colors.textSecondary,
     fontWeight: "600",
     marginBottom: 4,
   },
   infoValue: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: Colors.textPrimary,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: Spacing.xl,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 12,
-    color: "#333",
+    marginBottom: Spacing.md,
+    color: Colors.textPrimary,
   },
   ingredientItem: {
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: Colors.divider,
   },
   ingredientText: {
     fontSize: 15,
-    color: "#333",
+    color: Colors.textPrimary,
     lineHeight: 22,
   },
   stepItem: {
     flexDirection: "row",
-    marginBottom: 16,
+    marginBottom: Spacing.base,
   },
   stepNumber: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#0066cc",
-    marginRight: 12,
+    color: Colors.accent,
+    marginRight: Spacing.md,
     minWidth: 30,
   },
   stepText: {
     flex: 1,
     fontSize: 15,
-    color: "#333",
+    color: Colors.textPrimary,
     lineHeight: 22,
   },
   nutritionGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: Spacing.md,
   },
   nutritionItem: {
     flex: 1,
     minWidth: "45%",
-    backgroundColor: "#f9f9f9",
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: Colors.background,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: "center",
   },
   nutritionLabel: {
     fontSize: 12,
-    color: "#666",
+    color: Colors.textSecondary,
     fontWeight: "600",
     marginBottom: 4,
   },
   nutritionValue: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: Colors.textPrimary,
   },
 });

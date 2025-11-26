@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/api.service';
+import { Colors, BorderRadius, Spacing } from '../theme';
 
 // Helper function to format enum values
 const formatEnumValue = (value: string | undefined) => {
@@ -55,8 +56,8 @@ const SettingsScreen: React.FC = () => {
 
   const handleAbout = () => {
     Alert.alert(
-      'About Pantry Manager',
-      'Version 1.0.0\n\nA React Native app for managing your pantry inventory.\n\nBuilt with:\n• React Native\n• TypeScript\n• Redux Toolkit\n• React Navigation',
+      'About PantryPartner',
+      'Version 1.0.0\n\nYour friendly kitchen companion for managing pantry inventory.\n\nBuilt with:\n• React Native\n• TypeScript\n• Redux Toolkit\n• React Navigation',
       [{ text: 'OK' }]
     );
   };
@@ -183,10 +184,10 @@ const SettingsScreen: React.FC = () => {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Pantry Manager v1.0.0
+          PantryPartner v1.0.0
         </Text>
         <Text style={styles.footerSubtext}>
-          Built with React Native & TypeScript
+          Your friendly kitchen companion
         </Text>
       </View>
     </ScrollView>
@@ -196,53 +197,53 @@ const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   header: {
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: Spacing.lg,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: Colors.border,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.primary,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
     marginTop: 5,
   },
   section: {
-    marginTop: 20,
+    marginTop: Spacing.lg,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 10,
-    marginHorizontal: 20,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
+    marginHorizontal: Spacing.lg,
   },
   settingItem: {
-    backgroundColor: '#fff',
-    padding: 20,
+    backgroundColor: Colors.surface,
+    padding: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: Colors.divider,
   },
   settingLabel: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: Colors.textPrimary,
     marginBottom: 5,
   },
   settingDescription: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   settingValue: {
     fontSize: 14,
-    color: '#007AFF',
+    color: Colors.primary,
     marginTop: 5,
   },
   logoutButton: {
@@ -251,31 +252,32 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ff3b30',
+    color: Colors.error,
   },
   editButton: {
     alignItems: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
   },
   editButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: Colors.textInverse,
   },
   footer: {
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    padding: 20,
+    padding: Spacing.lg,
   },
   footerText: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.textSecondary,
     marginBottom: 5,
   },
   footerSubtext: {
     fontSize: 12,
-    color: '#999',
+    color: Colors.textTertiary,
   },
 });
 

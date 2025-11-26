@@ -7,7 +7,10 @@ import { apiService } from '../services/api.service';
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = '@pantry_app_user';
-const API_BASE_URL = 'http://localhost:3001/api/v1';
+// For Android emulator: use 10.0.2.2 (maps to host's localhost)
+// For iOS simulator: use localhost
+// For physical devices: use your computer's local IP address
+const API_BASE_URL = 'http://10.0.2.2:3001/api/v1';
 
 interface AuthProviderProps {
   children: ReactNode;

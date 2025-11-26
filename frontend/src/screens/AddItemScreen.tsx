@@ -19,6 +19,7 @@ import { createPantryItem } from '../store/pantrySlice';
 import { FoodCategory, QuantityUnit, CreatePantryItemRequest, NutritionInfo } from '../types/pantry.types';
 import BarcodeScanner from '../components/BarcodeScanner';
 import apiService from '../services/api.service';
+import { Colors, BorderRadius, Spacing } from '../theme';
 
 interface AddItemScreenProps {
   navigation: any;
@@ -374,7 +375,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                   value={formData.name}
                   onChangeText={(value) => handleInputChange('name', value)}
                   placeholder="e.g., Organic Apples"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={Colors.textTertiary}
                 />
               </View>
 
@@ -385,7 +386,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                   value={formData.brand}
                   onChangeText={(value) => handleInputChange('brand', value)}
                   placeholder="e.g., Whole Foods"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={Colors.textTertiary}
                 />
               </View>
 
@@ -406,7 +407,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                   onChangeText={(value) => handleInputChange('quantity', parseFloat(value) || 0)}
                   placeholder="1"
                   keyboardType="numeric"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={Colors.textTertiary}
                 />
               </View>
 
@@ -464,7 +465,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                           onChange={handleDateChange}
                           minimumDate={new Date()}
-                          textColor="#000000"
+                          textColor={Colors.textPrimary}
                           style={styles.datePicker}
                         />
                       </View>
@@ -482,7 +483,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleInputChange('barcode', value)}
                     placeholder="1234567890123"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                   <TouchableOpacity
                     style={styles.scanButton}
@@ -502,7 +503,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                   placeholder="Any additional notes..."
                   multiline
                   numberOfLines={3}
-                  placeholderTextColor="#999"
+                  placeholderTextColor={Colors.textTertiary}
                 />
               </View>
             </View>
@@ -520,7 +521,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleNutritionChange('calories', parseFloat(value) || undefined)}
                     placeholder="0"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
                 <View style={[styles.inputGroup, styles.halfWidth]}>
@@ -531,7 +532,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleNutritionChange('protein', parseFloat(value) || undefined)}
                     placeholder="0"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
               </View>
@@ -545,7 +546,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleNutritionChange('carbohydrates', parseFloat(value) || undefined)}
                     placeholder="0"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
                 <View style={[styles.inputGroup, styles.halfWidth]}>
@@ -556,7 +557,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleNutritionChange('fat', parseFloat(value) || undefined)}
                     placeholder="0"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
               </View>
@@ -570,7 +571,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleNutritionChange('fiber', parseFloat(value) || undefined)}
                     placeholder="0"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
                 <View style={[styles.inputGroup, styles.halfWidth]}>
@@ -581,7 +582,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleNutritionChange('sugar', parseFloat(value) || undefined)}
                     placeholder="0"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
               </View>
@@ -595,7 +596,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     onChangeText={(value) => handleNutritionChange('sodium', parseFloat(value) || undefined)}
                     placeholder="0"
                     keyboardType="numeric"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
                 <View style={[styles.inputGroup, styles.halfWidth]}>
@@ -605,7 +606,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                     value={formData.nutritionInfo?.servingSize || ''}
                     onChangeText={(value) => handleNutritionChange('servingSize', value)}
                     placeholder="1 cup"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
               </View>
@@ -643,7 +644,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: Colors.background,
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -654,55 +655,55 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: Colors.border,
   },
   backButton: {
-    marginRight: 15,
+    marginRight: Spacing.md,
   },
   backButtonText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: Colors.primary,
     fontWeight: '500',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.textPrimary,
   },
   form: {
-    padding: 20,
+    padding: Spacing.lg,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: Spacing.xxxl,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
   },
   inputGroup: {
-    marginBottom: 15,
+    marginBottom: Spacing.md,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.textPrimary,
     marginBottom: 5,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
     fontSize: 16,
-    backgroundColor: '#fff',
-    color: '#333',
+    backgroundColor: Colors.surface,
+    color: Colors.textPrimary,
   },
   textArea: {
     height: 80,
@@ -717,68 +718,68 @@ const styles = StyleSheet.create({
   },
   barcodeInputContainer: {
     flexDirection: 'row',
-    gap: 10,
+    gap: Spacing.sm,
   },
   barcodeInput: {
     flex: 1,
   },
   scanButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
     minWidth: 90,
   },
   scanButtonText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   dropdownButton: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.surface,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   dropdownButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: Colors.textPrimary,
     flex: 1,
   },
   dropdownArrow: {
     fontSize: 12,
-    color: '#666',
-    marginLeft: 8,
+    color: Colors.textSecondary,
+    marginLeft: Spacing.sm,
   },
   datePickerButton: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.surface,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   datePickerButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: Colors.textPrimary,
     flex: 1,
   },
   datePickerPlaceholder: {
-    color: '#999',
+    color: Colors.textTertiary,
   },
   datePickerIcon: {
     fontSize: 16,
-    marginLeft: 8,
+    marginLeft: Spacing.sm,
   },
   datePickerModal: {
     flex: 1,
@@ -786,51 +787,51 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   datePickerContainer: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 34, // Safe area for iPhone
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Spacing.lg,
+    borderTopRightRadius: Spacing.lg,
+    paddingBottom: 34,
   },
   datePickerHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: Spacing.base,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: Colors.border,
   },
   datePickerCancelButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.sm,
     backgroundColor: 'transparent',
-    borderRadius: 8,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors.border,
   },
   datePickerCancelText: {
-    color: '#666',
+    color: Colors.textSecondary,
     fontSize: 16,
     fontWeight: '500',
   },
   datePickerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.textPrimary,
   },
   datePickerCloseButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
   },
   datePickerCloseText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   datePicker: {
     height: 200,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.surface,
   },
   modalOverlay: {
     flex: 1,
@@ -839,12 +840,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    margin: 20,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    margin: Spacing.lg,
     maxHeight: '70%',
     minWidth: '80%',
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -857,21 +858,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: Spacing.base,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: Colors.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.textPrimary,
   },
   modalCloseButton: {
     padding: 4,
   },
   modalCloseText: {
     fontSize: 18,
-    color: '#666',
+    color: Colors.textSecondary,
     fontWeight: 'bold',
   },
   modalList: {
@@ -881,39 +882,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: Spacing.base,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: Colors.divider,
   },
   modalOptionSelected: {
-    backgroundColor: '#f8f9ff',
+    backgroundColor: Colors.background,
   },
   modalOptionText: {
     fontSize: 16,
-    color: '#333',
+    color: Colors.textPrimary,
     flex: 1,
   },
   modalOptionTextSelected: {
-    color: '#007AFF',
+    color: Colors.primary,
     fontWeight: '500',
   },
   modalOptionCheck: {
     fontSize: 16,
-    color: '#007AFF',
+    color: Colors.primary,
     fontWeight: 'bold',
   },
   submitButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: Spacing.lg,
   },
   submitButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: Colors.disabled,
   },
   submitButtonText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 16,
     fontWeight: 'bold',
   },

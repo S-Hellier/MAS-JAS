@@ -11,6 +11,7 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../context/AuthContext';
 import { DietType, GoalType } from '../types/auth.types';
+import { Colors, BorderRadius, Spacing } from '../theme';
 
 const FOOD_RESTRICTIONS = [
   'Dairy',
@@ -163,7 +164,7 @@ const ProfileSetupScreen: React.FC = () => {
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={Colors.textInverse} />
           ) : (
             <Text style={styles.saveButtonText}>Save & Continue →</Text>
           )}
@@ -176,45 +177,45 @@ const ProfileSetupScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   contentContainer: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxxl,
   },
   header: {
-    marginBottom: 30,
+    marginBottom: Spacing.xxxl,
     alignItems: 'center',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   section: {
-    marginBottom: 30,
+    marginBottom: Spacing.xxxl,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 10,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 10,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
   },
   pickerContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors.border,
     overflow: 'hidden',
   },
   picker: {
@@ -223,58 +224,58 @@ const styles = StyleSheet.create({
   restrictionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.sm,
   },
   restrictionChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.pill,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors.border,
   },
   restrictionChipSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   restrictionText: {
     fontSize: 14,
-    color: '#333',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
   restrictionTextSelected: {
-    color: '#fff',
+    color: Colors.textInverse,
   },
   buttonContainer: {
-    marginTop: 20,
-    gap: 15,
+    marginTop: Spacing.lg,
+    gap: Spacing.md,
   },
   skipButton: {
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: '#fff',
+    padding: Spacing.base,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: Colors.border,
     alignItems: 'center',
   },
   skipButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.textSecondary,
   },
   saveButton: {
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: '#007AFF',
+    padding: Spacing.base,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
     alignItems: 'center',
   },
   saveButtonDisabled: {
-    backgroundColor: '#999',
+    backgroundColor: Colors.disabled,
   },
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: Colors.textInverse,
   },
 });
 

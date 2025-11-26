@@ -13,6 +13,7 @@ import { PantryItem } from '../types/pantry.types';
 import { PantryStackParamList } from '../navigation/AppNavigator';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { fetchPantryItems } from '../store/pantrySlice';
+import { Colors, BorderRadius, Shadows, Spacing } from '../theme';
 
 type PantryScreenNavigationProp = StackNavigationProp<PantryStackParamList, 'PantryList'>;
 
@@ -123,13 +124,13 @@ const PantryScreen: React.FC<PantryScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   header: {
-    padding: 20,
-    backgroundColor: '#fff',
+    padding: Spacing.lg,
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: Colors.border,
   },
   headerTop: {
     flexDirection: 'row',
@@ -139,22 +140,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: Colors.primary,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
     marginTop: 5,
   },
   addButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.pill,
     marginTop: 5,
+    ...Shadows.small,
   },
   addButtonText: {
-    color: '#fff',
+    color: Colors.textInverse,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -162,53 +164,46 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   itemCard: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.surface,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: BorderRadius.md,
     marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Shadows.card,
   },
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   itemName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: Colors.textPrimary,
     flex: 1,
   },
   itemBrand: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.textSecondary,
     fontStyle: 'italic',
   },
   itemDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   itemQuantity: {
     fontSize: 16,
-    color: '#007AFF',
+    color: Colors.primary,
     fontWeight: '500',
   },
   itemCategory: {
     fontSize: 14,
-    color: '#666',
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 8,
+    color: Colors.textSecondary,
+    backgroundColor: Colors.divider,
+    paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: BorderRadius.sm,
   },
   itemFooter: {
     flexDirection: 'row',
@@ -217,15 +212,15 @@ const styles = StyleSheet.create({
   },
   itemExpiry: {
     fontSize: 12,
-    color: '#999',
+    color: Colors.textTertiary,
   },
   itemAdded: {
     fontSize: 12,
-    color: '#999',
+    color: Colors.textTertiary,
   },
   itemNotes: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.textSecondary,
     fontStyle: 'italic',
     marginTop: 5,
   },
@@ -238,13 +233,13 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#666',
+    color: Colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: Spacing.md,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: Colors.textTertiary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -255,17 +250,17 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
+    color: Colors.textSecondary,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: Spacing.lg,
   },
   errorText: {
     fontSize: 16,
-    color: '#c62828',
+    color: Colors.error,
     textAlign: 'center',
   },
 });
