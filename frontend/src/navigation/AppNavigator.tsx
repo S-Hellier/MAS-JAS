@@ -128,24 +128,12 @@ const TabNavigator: React.FC = () => {
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textTertiary,
-        tabBarShowIcon: false,
         tabBarLabelStyle: {
-          fontSize: 16,
-          fontWeight: '600',
-          marginTop: 0,
-          marginBottom: 0,
-        },
-        tabBarItemStyle: {
-          justifyContent: 'center',
-          alignItems: 'center',
+          fontSize: 14,
         },
         tabBarStyle: {
           backgroundColor: Colors.surface,
-          borderTopWidth: 1,
-          borderTopColor: Colors.border,
-          height: 50,
-          paddingTop: 0,
-          paddingBottom: 0,
+          height: 60,
         },
         headerStyle: {
           backgroundColor: Colors.surface,
@@ -164,9 +152,7 @@ const TabNavigator: React.FC = () => {
         component={HomeStackNavigator}
         options={{
           title: 'Home',
-          tabBarLabel: 'Home',
           headerShown: false,
-          tabBarIcon: () => null,
         }}
       />
       <Tab.Screen
@@ -174,9 +160,7 @@ const TabNavigator: React.FC = () => {
         component={PantryStackNavigator}
         options={{
           title: 'My Pantry',
-          tabBarLabel: 'Pantry',
           headerShown: false,
-          tabBarIcon: () => null,
         }}
       />
       <Tab.Screen
@@ -184,8 +168,6 @@ const TabNavigator: React.FC = () => {
         component={SettingsScreen}
         options={{
           title: 'Settings',
-          tabBarLabel: 'Settings',
-          tabBarIcon: () => null,
         }}
       />
     </Tab.Navigator>
