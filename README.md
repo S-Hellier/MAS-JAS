@@ -148,4 +148,4 @@ See `backend/README.md` for comprehensive API documentation including:
 - Authentication details
 - Error handling
 
-**JAS Team** - Georgia Tech Mobile Apps and Services Fall 2025
+**JAS Team - PantryPartner** - Georgia Tech Mobile Apps and Services Fall 2025
