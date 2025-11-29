@@ -14,13 +14,34 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 
 // CORS configuration
-// In development, allow all origins for mobile device testing
+// Allow requests from frontend (mobile app or web)
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? (process.env.CORS_ORIGIN || 'http://localhost:3000')
-    : true, // Allow all origins in development
+  origin: (origin, callback) => {
+    // In production, check against allowed origins
+    if (process.env.NODE_ENV === 'production') {
+      const allowedOrigins = process.env.CORS_ORIGIN 
+        ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+        : [];
+      
+      // Allow requests with no origin (mobile apps, Postman, etc.)
+      if (!origin || allowedOrigins.length === 0) {
+        return callback(null, true);
+      }
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    } else {
+      // In development, allow all origins for easier testing
+      callback(null, true);
+    }
+  },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-admin-api-key'],
 };
 app.use(cors(corsOptions));
 
@@ -51,14 +72,17 @@ app.use('*', (req, res) => {
   });
 });
 
-// Start server
-// Bind to 0.0.0.0 to accept connections from all network interfaces (allows mobile devices on same network)
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Pantry App Backend running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`📦 API Base URL: http://localhost:${PORT}/api/v1`);
-  console.log(`📱 Mobile devices: Use your Mac's IP address instead of localhost`);
-});
-
+// Export for Vercel serverless functions
 export default app;
+
+// Start server only when running locally (not in Vercel)
+// Vercel will handle the serverless function invocation
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Pantry App Backend running on port ${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    console.log(`📦 API Base URL: http://localhost:${PORT}/api/v1`);
+    console.log(`📱 Mobile devices: Use your Mac's IP address instead of localhost`);
+  });
+}

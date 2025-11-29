@@ -3,14 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { User, AuthContextType, LoginResponse, UpdatePreferencesRequest } from '../types/auth.types';
 import { apiService } from '../services/api.service';
+import { API_CONFIG } from '../config/api.config';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = '@pantry_app_user';
-// For Android emulator: use 10.0.2.2 (maps to host's localhost)
-// For iOS simulator: use localhost
-// For physical devices: use your computer's local IP address
-const API_BASE_URL = 'http://10.0.2.2:3001/api/v1';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -45,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await axios.post<LoginResponse>(
-        `${API_BASE_URL}/auth/login`,
+        `${API_CONFIG.AUTH}/login`,
         { email, name }
       );
 
@@ -90,7 +87,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const response = await axios.put(
-        `${API_BASE_URL}/auth/preferences`,
+        `${API_CONFIG.AUTH}/preferences`,
         preferences,
         {
           headers: {
