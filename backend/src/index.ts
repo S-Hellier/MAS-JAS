@@ -8,7 +8,7 @@ import routes from './routes';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // Security middleware
 app.use(helmet());
@@ -16,7 +16,7 @@ app.use(helmet());
 // CORS configuration
 // Allow requests from frontend (mobile app or web)
 const corsOptions = {
-  origin: (origin, callback) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     // In production, check against allowed origins
     if (process.env.NODE_ENV === 'production') {
       const allowedOrigins = process.env.CORS_ORIGIN 

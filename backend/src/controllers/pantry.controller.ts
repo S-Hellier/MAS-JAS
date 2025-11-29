@@ -5,7 +5,9 @@ import {
   UpdatePantryItemRequest, 
   PantryFilterOptions,
   PantryItemResponse,
-  PantryItemsResponse 
+  PantryItemsResponse,
+  FoodCategory,
+  QuantityUnit
 } from '@/types/pantry.types';
 import { z } from 'zod';
 import OpenAI from 'openai';
@@ -160,7 +162,16 @@ export class PantryController {
         }
       }
       
-      const pantryItem = await this.dbService.createPantryItem(userId, validatedData);
+      // Convert string literals to enum values
+      // expirationDate is guaranteed to be set at this point (either from input or AI suggestion)
+      const createRequest: CreatePantryItemRequest = {
+        ...validatedData,
+        expirationDate: validatedData.expirationDate || new Date().toISOString().split('T')[0],
+        unit: validatedData.unit as QuantityUnit,
+        category: validatedData.category as FoodCategory,
+      };
+      
+      const pantryItem = await this.dbService.createPantryItem(userId, createRequest);
       
       const response: PantryItemResponse = {
         success: true,
@@ -236,6 +247,7 @@ export class PantryController {
       const validatedFilters = pantryFilterSchema.parse(req.query);
       const filterOptions: PantryFilterOptions = {
         ...validatedFilters,
+        category: validatedFilters.category as FoodCategory | undefined,
         page: validatedFilters.page || 1,
         limit: validatedFilters.limit || 20
       };
@@ -285,7 +297,14 @@ export class PantryController {
 
       const validatedData = updatePantryItemSchema.parse(req.body);
       
-      const pantryItem = await this.dbService.updatePantryItem(userId, id, validatedData);
+      // Convert string literals to enum values
+      const updateRequest: UpdatePantryItemRequest = {
+        ...validatedData,
+        unit: validatedData.unit as QuantityUnit | undefined,
+        category: validatedData.category as FoodCategory | undefined,
+      };
+      
+      const pantryItem = await this.dbService.updatePantryItem(userId, id, updateRequest);
       
       const response: PantryItemResponse = {
         success: true,

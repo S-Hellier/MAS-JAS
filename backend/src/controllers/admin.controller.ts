@@ -17,6 +17,13 @@ import { supabaseAdmin } from '@/config/supabase';
  */
 export const getOverviewMetrics = async (req: Request, res: Response) => {
   try {
+    if (!supabaseAdmin) {
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection not available',
+      });
+    }
+
     const dbService = DatabaseService.getInstance();
 
     // Get total users from users table (more accurate)
@@ -79,12 +86,14 @@ export const getOverviewMetrics = async (req: Request, res: Response) => {
         timestamp: new Date().toISOString(),
       },
     });
+    return;
   } catch (error) {
     console.error('Error fetching overview metrics:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch overview metrics',
     });
+    return;
   }
 };
 
@@ -96,6 +105,13 @@ export const getOverviewMetrics = async (req: Request, res: Response) => {
  */
 export const getRecipeMetrics = async (req: Request, res: Response) => {
   try {
+    if (!supabaseAdmin) {
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection not available',
+      });
+    }
+
     // Check if recipes table exists and has generation_time column
     let totalRecipes = 0;
     let averageGenerationTime = 0;
@@ -200,12 +216,14 @@ export const getRecipeMetrics = async (req: Request, res: Response) => {
         timestamp: new Date().toISOString(),
       },
     });
+    return;
   } catch (error) {
     console.error('Error fetching recipe metrics:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch recipe metrics',
     });
+    return;
   }
 };
 
@@ -217,6 +235,14 @@ export const getRecipeMetrics = async (req: Request, res: Response) => {
  */
 export const getAllMetrics = async (req: Request, res: Response) => {
   try {
+    if (!supabaseAdmin) {
+      res.status(500).json({
+        success: false,
+        error: 'Database connection not available',
+      });
+      return;
+    }
+
     const dbService = DatabaseService.getInstance();
 
     // Get total users from users table (more accurate)
@@ -315,12 +341,14 @@ export const getAllMetrics = async (req: Request, res: Response) => {
         timestamp: new Date().toISOString(),
       },
     });
+    return;
   } catch (error) {
     console.error('Error fetching all metrics:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch metrics',
     });
+    return;
   }
 };
 
@@ -606,12 +634,14 @@ export const getDailyMetrics = async (req: Request, res: Response) => {
         timestamp: new Date().toISOString(),
       },
     });
+    return;
   } catch (error) {
     console.error('Error fetching daily metrics:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch daily metrics',
     });
+    return;
   }
 };
 

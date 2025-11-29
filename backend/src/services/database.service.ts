@@ -234,7 +234,7 @@ export class DatabaseService {
       throw new Error(`Failed to get items expiring soon: ${error.message}`);
     }
 
-    return data?.map(item => this.mapDatabaseItemToPantryItem(item)) || [];
+    return data?.map((item: any) => this.mapDatabaseItemToPantryItem(item)) || [];
   }
 
   /**
@@ -254,7 +254,7 @@ export class DatabaseService {
       throw new Error(`Failed to get expired items: ${error.message}`);
     }
 
-    return data?.map(item => this.mapDatabaseItemToPantryItem(item)) || [];
+    return data?.map((item: any) => this.mapDatabaseItemToPantryItem(item)) || [];
   }
 
   /**

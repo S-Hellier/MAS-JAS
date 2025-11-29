@@ -33,10 +33,12 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     // Attach user object to request
     (req as any).user = { id: userId };
     next();
+    return;
   } catch (err: any) {
     console.error("🔐 [AUTH] ❌ Auth middleware error:", err);
     console.error("🔐 [AUTH] Error details:", err.message);
     console.error("🔐 [AUTH] Error stack:", err.stack);
     res.status(500).json({ error: 'Internal server error' });
+    return;
   }
 };
