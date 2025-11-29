@@ -1,5 +1,5 @@
--- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Note: Using gen_random_uuid() which is built into PostgreSQL 13+
+-- No extension needed for UUID generation
 
 -- Create enum types
 CREATE TYPE food_category AS ENUM (
@@ -14,7 +14,7 @@ CREATE TYPE quantity_unit AS ENUM (
 
 -- Create pantry_items table
 CREATE TABLE pantry_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   brand VARCHAR(255),
   quantity DECIMAL(10,2) NOT NULL CHECK (quantity > 0),

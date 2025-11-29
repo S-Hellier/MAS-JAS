@@ -10,6 +10,7 @@ import {
   PantryItemsResponse,
   BarcodeLookupResponse,
 } from '../types/pantry.types';
+import { API_CONFIG } from '../config/api.config';
 
 const AUTH_STORAGE_KEY = '@pantry_app_user';
 
@@ -18,10 +19,8 @@ class ApiService {
   private userId: string = '';
 
   constructor() {
-    // For Android emulator: use 10.0.2.2 (maps to host's localhost)
-    // For iOS simulator: use localhost
-    // For physical devices: use your computer's local IP address
-    const baseURL = 'http://10.0.2.2:3001/api/v1/pantry';
+    // Use centralized API configuration
+    const baseURL = API_CONFIG.PANTRY;
 
     this.api = axios.create({
       baseURL,
@@ -76,7 +75,7 @@ class ApiService {
 
   // Health check
   async healthCheck(): Promise<{ status: string; timestamp: string; version: string }> {
-    const response: AxiosResponse = await axios.get('http://10.0.2.2:3001/health');
+    const response: AxiosResponse = await axios.get(API_CONFIG.HEALTH);
     return response.data;
   }
 
@@ -139,7 +138,7 @@ class ApiService {
    */
   async lookupBarcode(barcode: string): Promise<any> {
     const response: AxiosResponse = await axios.get(
-      `http://10.0.2.2:3001/api/v1/barcode/lookup/${barcode}`,
+      `${API_CONFIG.BARCODE}/lookup/${barcode}`,
       {
         headers: { 'x-user-id': this.userId },
         timeout: 15000, // 15 second timeout for external API call
@@ -150,7 +149,7 @@ class ApiService {
 
   async generateRecipe(): Promise<{ recipe: any }> {
     const response: AxiosResponse<{ recipe: any }> = await axios.post(
-      'http://10.0.2.2:3001/api/v1/recipes/generate',
+      `${API_CONFIG.RECIPES}/generate`,
       {},
       { headers: { 'x-user-id': this.userId } }
     );
@@ -163,7 +162,7 @@ class ApiService {
    */
   async getExpiringNotifications(): Promise<any> {
     const response: AxiosResponse = await axios.get(
-      'http://10.0.2.2:3001/api/v1/notifications/expiring',
+      `${API_CONFIG.NOTIFICATIONS}/expiring`,
       {
         headers: { 'x-user-id': this.userId },
       }
@@ -173,7 +172,7 @@ class ApiService {
 
   async saveRecipe(recipe: any) {
     const response = await axios.post(
-      'http://10.0.2.2:3001/api/v1/recipes/save',
+      `${API_CONFIG.RECIPES}/save`,
       recipe,
       { headers: { 'x-user-id': this.userId } }
     );
@@ -183,7 +182,7 @@ class ApiService {
   async getSavedRecipes(): Promise<Recipe[]> {
     try {
       const response = await axios.get(
-        'http://10.0.2.2:3001/api/v1/recipes/saved',
+        `${API_CONFIG.RECIPES}/saved`,
         {
           headers: {
             'x-user-id': this.userId,
@@ -202,7 +201,7 @@ class ApiService {
   async deleteRecipe(recipeId: string): Promise<void> {
     try {
       const response = await axios.delete(
-        `http://10.0.2.2:3001/api/v1/recipes/delete/${recipeId}`,
+        `${API_CONFIG.RECIPES}/delete/${recipeId}`,
         {
           headers: {
             'x-user-id': this.userId,
