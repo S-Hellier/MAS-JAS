@@ -25,6 +25,7 @@ export interface User {
   goals?: GoalType;
   food_restrictions?: string[];
   profile_completed?: boolean;
+  is_admin?: boolean;
   created_at: string;
   updated_at: string;
 }
