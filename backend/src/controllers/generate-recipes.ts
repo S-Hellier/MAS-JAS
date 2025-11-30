@@ -8,7 +8,6 @@
 
 import { User } from "../types/auth.types";
 import { PantryItem } from "../types/pantry.types";
-import fetch from "node-fetch";
 import { z } from "zod";
 import dotenv from 'dotenv';
 import axios from 'axios';
@@ -49,12 +48,8 @@ async function fetchIngredients(userId: string): Promise<PantryItem[]> {
     'x-user-id': userId
   }
 
-  const res = await fetch(`${LOCAL_API_BASE}/pantry`, {headers: headers});
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ingredients from ${LOCAL_API_BASE}/pantry: ${res.status} ${res.statusText}`);
-  }
-
-  const json = (await res.json()) as { data: PantryItem[] };
+  const res = await axios.get(`${LOCAL_API_BASE}/pantry`, {headers: headers});
+  const json = res.data as { data: PantryItem[] };
   const items = json.data;
 
   if (!Array.isArray(items)) {
@@ -77,15 +72,11 @@ async function fetchIngredients(userId: string): Promise<PantryItem[]> {
 }
 
 async function fetchUserPreferences(userId: string) {
-  const res = await fetch(`${LOCAL_API_BASE}/auth/me`, {
+  const res = await axios.get(`${LOCAL_API_BASE}/auth/me`, {
     headers: { 'x-user-id': userId },
   });
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch user info');
-  }
-
-  const data = (await res.json()) as { user: User };
+  const data = res.data as { user: User };
 
   const { diet = 'none', goals = 'none', food_restrictions = [] } = data.user;
 
@@ -155,20 +146,14 @@ async function callOpenAI(
     max_tokens: 800,
   };
 
-  const res = await fetch(url, {
-    method: "POST",
+  const res = await axios.post(url, payload, {
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
   });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`OpenAI API error: ${res.status} ${res.statusText} - ${text}`);
-  }
-  const data = (await res.json()) as {
+  const data = res.data as {
     choices: Array<{
       message?: {
         role: string;
