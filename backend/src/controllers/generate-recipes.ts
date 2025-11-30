@@ -1,7 +1,7 @@
 /**
  * generate-recipes.ts
  *
- * - Fetch ingredients from a local API
+ * - Fetch ingredients from database
  * - Call OpenAI (gpt-4o-mini) using function-calling with a JSON schema
  * - Parse & validate the response into a typed Recipe object
  */
@@ -11,16 +11,20 @@ import { PantryItem } from "../types/pantry.types";
 import { z } from "zod";
 import dotenv from 'dotenv';
 import axios from 'axios';
+import { DatabaseService } from "../services/database.service";
+import { AuthService } from "../services/auth.service";
 
 dotenv.config()
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const LOCAL_API_BASE = process.env.LOCAL_API_BASE || "http://localhost:3001/api/v1";
 
 if (!OPENAI_API_KEY) {
   console.error("Missing OPENAI_API_KEY environment variable.");
   process.exit(1);
 }
+
+const databaseService = DatabaseService.getInstance();
+const authService = AuthService.getInstance();
 
 const RecipeSchema = z.object({
   title: z.string().min(1),
@@ -42,43 +46,40 @@ const RecipeSchema = z.object({
     .optional()
 });
 
-// get non-expired ingredients in pantry
+// Get non-expired ingredients from pantry
 async function fetchIngredients(userId: string): Promise<PantryItem[]> {
-  const headers = {
-    'x-user-id': userId
-  }
-
-  const res = await axios.get(`${LOCAL_API_BASE}/pantry`, {headers: headers});
-  const json = res.data as { data: PantryItem[] };
-  const items = json.data;
+  // Use DatabaseService to get all pantry items
+  const result = await databaseService.getPantryItems(userId, {});
+  const items = result.items;
 
   if (!Array.isArray(items)) {
-    throw new Error(`Expected an array of pantry items, got: ${JSON.stringify(json)}`);
+    throw new Error(`Expected an array of pantry items, got: ${JSON.stringify(result)}`);
   }
 
+  // Filter out expired items
   const now = new Date();
-
   const validIngredients = items.filter(item => {
     const exp = new Date(item.expirationDate);
     return exp >= now;
   });
 
+  // Sort by expiration date (soonest first)
   const sortedIngredients = validIngredients.sort((a, b) => {
     return new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime();
   });
 
-  console.log(sortedIngredients);
   return sortedIngredients;
 }
 
 async function fetchUserPreferences(userId: string) {
-  const res = await axios.get(`${LOCAL_API_BASE}/auth/me`, {
-    headers: { 'x-user-id': userId },
-  });
+  // Use AuthService to get user data
+  const user = await authService.getUserById(userId);
 
-  const data = res.data as { user: User };
+  if (!user) {
+    throw new Error('User not found');
+  }
 
-  const { diet = 'none', goals = 'none', food_restrictions = [] } = data.user;
+  const { diet = 'none', goals = 'none', food_restrictions = [] } = user;
 
   return {
     diet,
