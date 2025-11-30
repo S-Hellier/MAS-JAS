@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DatabaseService } from '@/services/database.service';
+import { DatabaseService } from '../services/database.service';
 
 /**
  * Calculate how many days before expiration to notify user

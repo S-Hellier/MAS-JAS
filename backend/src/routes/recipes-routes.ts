@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { saveRecipeHandler, getSavedRecipesHandler, deleteRecipeHandler } from "@/controllers/recipe.controller";
-import { generateRecipeForUser } from "@/controllers/generate-recipes";
-import { authMiddleware } from "@/services/auth.middleware";
-import { supabaseAdmin } from "@/config/supabase";
+import { saveRecipeHandler, getSavedRecipesHandler, deleteRecipeHandler } from "../controllers/recipe.controller";
+import { generateRecipeForUser } from "../controllers/generate-recipes";
+import { authMiddleware } from "../services/auth.middleware";
+import { supabaseAdmin } from "../config/supabase";
 
 const router = Router();
 

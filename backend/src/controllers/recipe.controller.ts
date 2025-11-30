@@ -1,7 +1,7 @@
 // controllers/recipe.controller.ts
 import { Request, Response } from "express";
-import { RecipeSchema } from "@/types/recipe.types";
-import { RecipeService } from "@/services/recipe.service";
+import { RecipeSchema } from "../types/recipe.types";
+import { RecipeService } from "../services/recipe.service";
 import { z } from "zod";
 
 const recipeService = new RecipeService();

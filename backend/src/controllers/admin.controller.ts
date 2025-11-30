@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { DatabaseService } from '@/services/database.service';
-import { supabaseAdmin } from '@/config/supabase';
+import { DatabaseService } from '../services/database.service';
+import { supabaseAdmin } from '../config/supabase';
 
 /**
  * Admin Controller

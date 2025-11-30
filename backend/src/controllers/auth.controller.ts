@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { AuthService } from '@/services/auth.service';
-import { LoginRequest, UpdatePreferencesRequest, DietType, GoalType } from '@/types/auth.types';
+import { AuthService } from '../services/auth.service';
+import { LoginRequest, UpdatePreferencesRequest, DietType, GoalType } from '../types/auth.types';
 
 const authService = AuthService.getInstance();
 

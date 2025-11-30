@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { supabaseAdmin } from '@/config/supabase';
-import { AuthService } from '@/services/auth.service';
+import { supabaseAdmin } from '../config/supabase';
+import { AuthService } from '../services/auth.service';
 
 const authService = AuthService.getInstance();
 

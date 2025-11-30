@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/config/supabase';
+import { supabaseAdmin } from '../config/supabase';
 import { 
   PantryItem, 
   CreatePantryItemRequest, 
@@ -6,7 +6,7 @@ import {
   PantryFilterOptions,
   FoodCategory,
   QuantityUnit 
-} from '@/types/pantry.types';
+} from '../types/pantry.types';
 
 export class DatabaseService {
   private static instance: DatabaseService;

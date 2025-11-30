@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { PantryController } from '@/controllers/pantry.controller';
+import { PantryController } from '../controllers/pantry.controller';
 
 const router = Router();
 const pantryController = new PantryController();

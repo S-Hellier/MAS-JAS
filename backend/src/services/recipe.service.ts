@@ -1,6 +1,6 @@
 // services/recipe.service.ts
-import { supabase } from "@/config/supabase";
-import { Recipe } from "@/types/recipe.types";
+import { supabase } from "../config/supabase";
+import { Recipe } from "../types/recipe.types";
 
 export class RecipeService {
   async saveRecipe(userId: string, recipe: Recipe) {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { AuthenticatedAdminRequest } from '@/middleware/admin-auth.middleware';
-import { AuthService } from '@/services/auth.service';
+import { AuthenticatedAdminRequest } from '../middleware/admin-auth.middleware';
+import { AuthService } from '../services/auth.service';
 
 const authService = AuthService.getInstance();
 

@@ -1,5 +1,5 @@
-import { supabase } from '@/config/supabase';
-import { User, LoginRequest, UpdatePreferencesRequest } from '@/types/auth.types';
+import { supabase } from '../config/supabase';
+import { User, LoginRequest, UpdatePreferencesRequest } from '../types/auth.types';
 
 export class AuthService {
   private static instance: AuthService;

@@ -1,7 +1,3 @@
-// Register tsconfig-paths FIRST to resolve path aliases at runtime
-// This must be imported before any other imports that use @/ aliases
-import 'tsconfig-paths/register';
-
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';

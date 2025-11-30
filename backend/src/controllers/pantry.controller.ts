@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DatabaseService } from '@/services/database.service';
+import { DatabaseService } from '../services/database.service';
 import { 
   CreatePantryItemRequest, 
   UpdatePantryItemRequest, 
@@ -8,7 +8,7 @@ import {
   PantryItemsResponse,
   FoodCategory,
   QuantityUnit
-} from '@/types/pantry.types';
+} from '../types/pantry.types';
 import { z } from 'zod';
 import OpenAI from 'openai';
 

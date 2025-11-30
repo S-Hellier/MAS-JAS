@@ -7,7 +7,7 @@
  */
 
 import { User } from "../types/auth.types";
-import { PantryItem } from "@/types/pantry.types";
+import { PantryItem } from "../types/pantry.types";
 import fetch from "node-fetch";
 import { z } from "zod";
 import dotenv from 'dotenv';
