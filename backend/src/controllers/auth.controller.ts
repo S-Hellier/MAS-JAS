@@ -10,10 +10,15 @@ const authService = AuthService.getInstance();
  */
 export async function login(req: Request, res: Response) {
   try {
+    console.log('🔐 [LOGIN] Request received');
+    console.log('🔐 [LOGIN] Headers:', req.headers);
+    console.log('🔐 [LOGIN] Body:', req.body);
+    
     const { email, name } = req.body as LoginRequest;
 
     // Validate email
     if (!email || typeof email !== 'string') {
+      console.log('🔐 [LOGIN] ❌ Invalid email - missing or not string');
       return res.status(400).json({
         error: 'Email is required and must be a string',
       });
@@ -22,19 +27,23 @@ export async function login(req: Request, res: Response) {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('🔐 [LOGIN] ❌ Invalid email format:', email);
       return res.status(400).json({
         error: 'Invalid email format',
       });
     }
 
+    console.log('🔐 [LOGIN] Attempting to login/create user:', email);
     const user = await authService.loginOrCreateUser({ email, name });
+    console.log('🔐 [LOGIN] ✅ User logged in/created:', user.id);
 
     return res.status(200).json({
       user,
       message: 'Login successful',
     });
   } catch (error) {
-    console.error('Error in login:', error);
+    console.error('🔐 [LOGIN] ❌ Error in login:', error);
+    console.error('🔐 [LOGIN] Error details:', error instanceof Error ? error.message : 'Unknown error');
     return res.status(500).json({
       error: error instanceof Error ? error.message : 'Internal server error',
     });
