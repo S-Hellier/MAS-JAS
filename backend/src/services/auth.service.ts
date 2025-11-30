@@ -41,9 +41,15 @@ export class AuthService {
         .eq('email', request.email.toLowerCase().trim())
         .single();
 
+      // If user exists, return it
       if (existingUser) {
-        // User exists, return it (parse food_restrictions)
         return this.parseUserData(existingUser);
+      }
+
+      // If error is "not found" (PGRST116), user doesn't exist - create new one
+      // If it's a different error, throw it
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw new Error(`Failed to check if user exists: ${fetchError.message}`);
       }
 
       // User doesn't exist, create new user

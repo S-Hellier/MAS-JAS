@@ -27,12 +27,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
       if (storedUser) {
         const userData = JSON.parse(storedUser);
-        setUser(userData);
-        // Sync with apiService
-        apiService.setUserId(userData.id);
+        
+        // Validate user with backend
+        try {
+          const response = await axios.get(
+            `${API_CONFIG.AUTH}/me`,
+            {
+              headers: {
+                'x-user-id': userData.id,
+              },
+            }
+          );
+          
+          // User is valid, update with latest data from backend
+          const validatedUser = response.data.user;
+          setUser(validatedUser);
+          await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(validatedUser));
+          apiService.setUserId(validatedUser.id);
+        } catch (error) {
+          // User validation failed (user doesn't exist, invalid, etc.)
+          // Clear stored user and show login screen
+          console.log('User validation failed, clearing stored user:', error);
+          await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+          setUser(null);
+          apiService.setUserId('');
+        }
       }
     } catch (error) {
       console.error('Error loading user:', error);
+      // On error, clear any potentially corrupted data
+      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -46,6 +71,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         { email, name }
       );
 
+      // Check if response has user data
+      if (!response.data || !response.data.user) {
+        throw new Error('Invalid response from server: missing user data');
+      }
+
       const loggedInUser = response.data.user;
 
       // Save user to state and storage
@@ -54,9 +84,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Sync with apiService
       apiService.setUserId(loggedInUser.id);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      throw error;
+      
+      // Extract error message from axios error response
+      const errorMessage = error.response?.data?.error 
+        || error.response?.data?.message 
+        || error.message 
+        || 'Unable to login. Please check your connection and try again.';
+      
+      // Create a new error with the actual message
+      const loginError = new Error(errorMessage);
+      (loginError as any).response = error.response;
+      throw loginError;
     } finally {
       setIsLoading(false);
     }
