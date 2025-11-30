@@ -172,7 +172,7 @@ async function callOpenAI(
 
 
 // recipe generation function
-async function generateRecipeForUser(options?: { userId?: string; allergies?: string[]; diets?: string[] }) {
+async function generateRecipeForUser(options?: { userId?: string; allergies?: string[]; diets?: string[]; description?: string }) {
   const userId = options?.userId;
   if (!userId) {
     throw new Error('User ID is required for recipe generation');
@@ -205,20 +205,31 @@ async function generateRecipeForUser(options?: { userId?: string; allergies?: st
       "You are a helpful recipe generator. Return a JSON by calling the function 'create_recipe' with the specified JSON schema.",
   };
 
-  const userMessage = {
-    role: "user",
-    content:
+  // Build user message with optional description
+  let userMessageContent = 
       `Create a recipe tailored to these user constraints. ` +
       `Constraints: allergies=${JSON.stringify(userPreferences.allergies || [])}\n` +
       `Diets=${JSON.stringify(userPreferences.diet || [])},\n` +
-      `Goal=${JSON.stringify(userPreferences.goal || "none")}\n` +
+      `Goal=${JSON.stringify(userPreferences.goal || "none")}\n`;
+  
+  // Add user description if provided
+  if (options?.description && options.description.trim()) {
+    userMessageContent += `\nUser's specific recipe request: ${options.description}\n`;
+  }
+  
+  userMessageContent += 
       `Available ingredients:\n${JSON.stringify(compactIngredients, null, 2)}\n\n` +
       `Rules:\n` +
       `1) Respect diets & allergies absolutely; set allergensHandled=true if you applied special handling.\n` +
       `2) Steps are clear and numbered. Provide reasonable quantities per serving.\n` +
       `3) Prioritize using ingreidents that are soon to expire\n` +
       `4) You can generate recipes that recipe that extra ingredient, but must let the user know that it has to be bought.\n` +
-      `5) Return result by calling the function create_recipe with the exact schema provided.`,
+      `5) If the user provided specific recipe requirements (e.g., cuisine type, occasion, serving size), incorporate those preferences into the recipe.\n` +
+      `6) Return result by calling the function create_recipe with the exact schema provided.`;
+
+  const userMessage = {
+    role: "user",
+    content: userMessageContent,
   };
 
   const model = "gpt-4o-mini";

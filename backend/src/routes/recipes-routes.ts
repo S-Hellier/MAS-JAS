@@ -20,8 +20,8 @@ router.post("/generate", async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { allergies, diets } = req.body;
-    const recipe = await generateRecipeForUser({ userId, allergies, diets });
+    const { allergies, diets, description } = req.body;
+    const recipe = await generateRecipeForUser({ userId, allergies, diets, description });
 
     const generationTime = Date.now() - startTime;
     
