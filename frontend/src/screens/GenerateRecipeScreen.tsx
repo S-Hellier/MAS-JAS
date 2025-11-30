@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { apiService } from "../services/api.service";
 import { Recipe } from "../types/recipe.types";
@@ -16,11 +17,12 @@ export default function GenerateRecipeScreen() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [recipeDescription, setRecipeDescription] = useState("");
 
   const handleGenerateRecipe = async () => {
     setLoading(true);
     try {
-      const result = await apiService.generateRecipe();
+      const result = await apiService.generateRecipe(recipeDescription);
       setRecipe(result.recipe);
     } catch (error: any) {
       console.error("Failed to generate recipe:", error.response?.data || error.message);
@@ -56,6 +58,18 @@ export default function GenerateRecipeScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Generate Recipe</Text>
+
+      <Text style={styles.label}>What type of recipe are you looking for today?</Text>
+      <TextInput
+        style={styles.textInput}
+        placeholder="e.g., Help me generate a recipe for 2 for a casual date night. I would like the recipe to be based on italian cuisine"
+        placeholderTextColor={Colors.textSecondary}
+        value={recipeDescription}
+        onChangeText={setRecipeDescription}
+        multiline
+        numberOfLines={4}
+        textAlignVertical="top"
+      />
 
       <TouchableOpacity
         style={styles.button}
@@ -156,5 +170,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 2,
     color: Colors.textPrimary,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: Spacing.sm,
+    color: Colors.textPrimary,
+  },
+  textInput: {
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border || Colors.textSecondary,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.base,
+    fontSize: 16,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.lg,
+    minHeight: 100,
+    ...Shadows.small,
   },
 });

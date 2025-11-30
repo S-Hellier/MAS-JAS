@@ -147,10 +147,10 @@ class ApiService {
     return response.data;
   }
 
-  async generateRecipe(): Promise<{ recipe: any }> {
+  async generateRecipe(description?: string): Promise<{ recipe: any }> {
     const response: AxiosResponse<{ recipe: any }> = await axios.post(
       `${API_CONFIG.RECIPES}/generate`,
-      {},
+      { description: description || "" },
       { headers: { 'x-user-id': this.userId } }
     );
     return response.data;
