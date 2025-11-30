@@ -35,11 +35,11 @@ const LoginScreen: React.FC = () => {
     try {
       setIsLoading(true);
       await login(email.trim().toLowerCase(), name.trim() || undefined);
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      const errorMessage = error.message || 'Unable to login. Please check your connection and try again.';
       Alert.alert(
         'Login Failed',
-        'Unable to login. Please check your connection and try again.'
+        errorMessage
       );
     } finally {
       setIsLoading(false);

@@ -47,7 +47,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } catch (error) {
           // User validation failed (user doesn't exist, invalid, etc.)
           // Clear stored user and show login screen
-          console.log('User validation failed, clearing stored user:', error);
           await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
           setUser(null);
           apiService.setUserId('');
@@ -66,9 +65,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, name?: string) => {
     try {
       setIsLoading(true);
+      
       const response = await axios.post<LoginResponse>(
         `${API_CONFIG.AUTH}/login`,
-        { email, name }
+        { email, name },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       // Check if response has user data
@@ -85,16 +90,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Sync with apiService
       apiService.setUserId(loggedInUser.id);
     } catch (error: any) {
-      console.error('Login error:', error);
-      
       // Extract error message from axios error response
-      const errorMessage = error.response?.data?.error 
+      let errorMessage = error.response?.data?.error 
         || error.response?.data?.message 
         || error.message 
         || 'Unable to login. Please check your connection and try again.';
       
+      // If it's a network error, provide more helpful message
+      if (!error.response) {
+        if (error.code === 'NETWORK_ERROR' || error.message.includes('Network')) {
+          errorMessage = 'Network error: Could not reach server. Check your internet connection and verify the backend URL is correct.';
+        } else if (error.code === 'ECONNREFUSED') {
+          errorMessage = 'Connection refused: The server is not reachable. Verify the backend URL is correct.';
+        } else {
+          errorMessage = `Network error: ${error.message || 'Could not connect to server'}. Verify the backend URL is correct.`;
+        }
+      }
+      
+      // Include status code in error message if available
+      const statusCode = error.response?.status;
+      const fullErrorMessage = statusCode 
+        ? `[${statusCode}] ${errorMessage}`
+        : errorMessage;
+      
       // Create a new error with the actual message
-      const loginError = new Error(errorMessage);
+      const loginError = new Error(fullErrorMessage);
       (loginError as any).response = error.response;
       throw loginError;
     } finally {

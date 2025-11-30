@@ -13,12 +13,21 @@
 // CONFIGURE YOUR REMOTE BACKEND URL HERE
 // ============================================
 // Replace this with your actual deployed backend URL
+// 
+// IMPORTANT: Use your PRODUCTION URL, not a preview deployment URL
+// Preview URLs have deployment protection and will return 401 errors
+// 
+// To find your production URL:
+// 1. Go to Vercel Dashboard → Your Project → Settings → Domains
+// 2. Or check Deployments tab for the production deployment URL
+// 3. It should look like: https://your-app.vercel.app (not the long preview URL)
+//
 // Examples:
-//   - Vercel: https://your-app.vercel.app
+//   - Vercel Production: https://pantry-partner.vercel.app
+//   - Custom domain: https://api.yourdomain.com
 //   - Railway: https://your-app.railway.app
 //   - Render: https://your-app.onrender.com
-//   - Custom domain: https://api.yourdomain.com
-const REMOTE_BACKEND_URL = 'https://pantry-partner-cis0fylsv-scott-helliers-projects.vercel.app';
+const REMOTE_BACKEND_URL = 'https://pantry-partner-lime.vercel.app';
 
 // ============================================
 // OPTIONAL: Local development override
@@ -32,13 +41,6 @@ const REMOTE_BACKEND_URL = 'https://pantry-partner-cis0fylsv-scott-helliers-proj
 const USE_LOCAL_IN_DEV = false;
 
 const getBaseURL = () => {
-  // Check for environment variable override (if using react-native-config)
-  const envApiUrl = process.env.API_BASE_URL || process.env.REACT_APP_API_URL;
-  
-  if (envApiUrl) {
-    return envApiUrl;
-  }
-  
   // Use local backend if enabled and in development
   if (USE_LOCAL_IN_DEV && __DEV__) {
     // Uncomment one of these based on your setup:
@@ -47,7 +49,7 @@ const getBaseURL = () => {
     return 'http://10.0.2.2:3001'; // Default for Android emulator
   }
   
-  // Always use remote backend (default)
+  // Production: Always use remote backend
   if (!REMOTE_BACKEND_URL || REMOTE_BACKEND_URL.includes('your-backend-url')) {
     console.warn(
       '⚠️  REMOTE_BACKEND_URL not configured! ' +
@@ -70,8 +72,8 @@ export const API_CONFIG = {
   ADMIN: `${getBaseURL()}/api/v1/admin`,
 } as const;
 
-// Log the API URL in development for debugging
-// if (isDevelopment) {
-//   console.log('🔗 API Base URL:', API_CONFIG.BASE_URL);
-// }
+// Log API URL only in development
+if (__DEV__) {
+  console.log('🔗 API Base URL:', API_CONFIG.BASE_URL);
+}
 
