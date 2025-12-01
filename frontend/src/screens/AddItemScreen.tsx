@@ -167,14 +167,9 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
           }));
         }
         
-        // Show success message with product name
-        const expirationMessage = productData.suggestedExpirationDate 
-          ? '\n\n✨ AI suggested an expiration date based on the product type. You can adjust it if needed.'
-          : '\n\nPlease add an expiration date.';
-        
         Alert.alert(
           '✓ Product Found!',
-          `${productData.name}${productData.brand ? ' by ' + productData.brand : ''}${expirationMessage}`,
+          `${productData.name}${productData.brand ? ' by ' + productData.brand : ''}`,
           [{ text: 'OK' }]
         );
       } else {
@@ -421,7 +416,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
               )}
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Expiration Date (Optional - AI will suggest if blank)</Text>
+                <Text style={styles.label}>Expiration Date (Optional)</Text>
                 <TouchableOpacity
                   style={styles.datePickerButton}
                   onPress={() => setShowDatePicker(true)}

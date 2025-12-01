@@ -137,8 +137,13 @@ class ApiService {
    * This calls the new barcode lookup endpoint
    */
   async lookupBarcode(barcode: string): Promise<any> {
+    // Clean and encode the barcode for URL
+    // Remove any non-numeric characters and trim whitespace
+    const cleanedBarcode = barcode.trim().replace(/[^\d]/g, '');
+    const encodedBarcode = encodeURIComponent(cleanedBarcode);
+    
     const response: AxiosResponse = await axios.get(
-      `${API_CONFIG.BARCODE}/lookup/${barcode}`,
+      `${API_CONFIG.BARCODE}/lookup/${encodedBarcode}`,
       {
         headers: { 'x-user-id': this.userId },
         timeout: 15000, // 15 second timeout for external API call
