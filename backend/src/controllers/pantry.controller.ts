@@ -7,7 +7,8 @@ import {
   PantryItemResponse,
   PantryItemsResponse,
   FoodCategory,
-  QuantityUnit
+  QuantityUnit,
+  NutritionInfo
 } from '../types/pantry.types';
 import { z } from 'zod';
 import OpenAI from 'openai';
@@ -23,7 +24,7 @@ const createPantryItemSchema = z.object({
   brand: z.string().max(255).optional(),
   quantity: z.number().positive(),
   unit: z.enum(['pieces', 'grams', 'kilograms', 'pounds', 'ounces', 'liters', 'milliliters', 'cups', 'tablespoons', 'teaspoons', 'packages', 'cans', 'bottles']),
-  category: z.enum(['produce', 'grains', 'meat', 'dairy', 'seafood', 'beverages', 'snacks', 'condiments', 'frozen', 'canned', 'bakery', 'spices', 'other']),
+  category: z.enum(['produce', 'grains', 'meat', 'dairy', 'seafood', 'beverages', 'snacks', 'condiments', 'frozen', 'canned', 'bakery', 'spices', 'other']).optional(),
   expirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')), // Allow empty string or valid date - AI will suggest if empty
   nutritionInfo: z.object({
     calories: z.number().optional(),
@@ -53,6 +54,157 @@ const pantryFilterSchema = z.object({
   sortBy: z.enum(['name', 'expirationDate', 'dateAdded']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional()
 });
+
+/**
+ * Infer the category of a product using AI
+ */
+async function inferCategory(productName: string, brand?: string): Promise<FoodCategory> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.log('OpenAI API key not configured, using default category');
+      return FoodCategory.OTHER;
+    }
+
+    const prompt = `You are a food categorization expert. Based on the product information below, categorize it into one of these categories:
+
+Available categories:
+- produce (fruits, vegetables, fresh produce)
+- grains (rice, pasta, cereal, flour, bread ingredients)
+- meat (beef, pork, poultry, lamb, etc.)
+- dairy (milk, cheese, yogurt, butter, etc.)
+- seafood (fish, shellfish, etc.)
+- beverages (drinks, juices, sodas, water, etc.)
+- snacks (chips, cookies, crackers, etc.)
+- condiments (sauces, dressings, spices, seasonings)
+- frozen (frozen foods)
+- canned (canned goods, preserved foods)
+- bakery (bread, pastries, baked goods)
+- spices (spices, herbs, seasonings)
+- other (anything that doesn't fit the above)
+
+Product: ${productName}${brand ? `\nBrand: ${brand}` : ''}
+
+Respond with ONLY the category name in lowercase (e.g., "produce", "dairy", "snacks").`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a food categorization expert. Respond only with a single category name in lowercase.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 20,
+    });
+
+    const categoryStr = completion.choices[0].message.content?.trim().toLowerCase() || 'other';
+    
+    // Validate that the category is one of our enum values
+    const validCategories = Object.values(FoodCategory);
+    const inferredCategory = validCategories.includes(categoryStr as FoodCategory) 
+      ? (categoryStr as FoodCategory) 
+      : FoodCategory.OTHER;
+    
+    console.log(`AI inferred category: ${inferredCategory} for "${productName}"`);
+    return inferredCategory;
+
+  } catch (error) {
+    console.error('Error inferring category:', error);
+    return FoodCategory.OTHER;
+  }
+}
+
+/**
+ * Infer nutrition information for a product using AI
+ */
+async function inferNutritionInfo(productName: string, brand?: string, category?: string): Promise<NutritionInfo | null> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.log('OpenAI API key not configured, skipping nutrition info inference');
+      return null;
+    }
+
+    const prompt = `You are a nutrition expert. Based on the product information below, provide estimated nutrition information per serving.
+
+Product: ${productName}${brand ? `\nBrand: ${brand}` : ''}${category ? `\nCategory: ${category}` : ''}
+
+Provide the nutrition information in the following JSON format (use null for values you cannot estimate):
+{
+  "calories": <number or null>,
+  "protein": <number in grams or null>,
+  "carbohydrates": <number in grams or null>,
+  "fat": <number in grams or null>,
+  "fiber": <number in grams or null>,
+  "sugar": <number in grams or null>,
+  "sodium": <number in milligrams or null>,
+  "servingSize": "<string describing serving size, e.g., '1 cup', '100g', '1 piece'>",
+  "servingUnit": "<unit like 'cup', 'g', 'piece', 'oz'>"
+}
+
+Respond with ONLY valid JSON, no additional text.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a nutrition expert. Respond only with valid JSON containing nutrition information.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 300,
+      response_format: { type: 'json_object' }
+    });
+
+    const responseText = completion.choices[0].message.content?.trim();
+    if (!responseText) {
+      console.log('Empty response from AI for nutrition info');
+      return null;
+    }
+
+    try {
+      const nutritionData = JSON.parse(responseText);
+      
+      // Validate and format the nutrition info
+      const nutritionInfo: NutritionInfo = {
+        calories: typeof nutritionData.calories === 'number' ? nutritionData.calories : undefined,
+        protein: typeof nutritionData.protein === 'number' ? nutritionData.protein : undefined,
+        carbohydrates: typeof nutritionData.carbohydrates === 'number' ? nutritionData.carbohydrates : undefined,
+        fat: typeof nutritionData.fat === 'number' ? nutritionData.fat : undefined,
+        fiber: typeof nutritionData.fiber === 'number' ? nutritionData.fiber : undefined,
+        sugar: typeof nutritionData.sugar === 'number' ? nutritionData.sugar : undefined,
+        sodium: typeof nutritionData.sodium === 'number' ? nutritionData.sodium : undefined,
+        servingSize: typeof nutritionData.servingSize === 'string' ? nutritionData.servingSize : undefined,
+        servingUnit: typeof nutritionData.servingUnit === 'string' ? nutritionData.servingUnit : undefined,
+      };
+
+      // Only return if we have at least some nutrition data
+      if (nutritionInfo.calories || nutritionInfo.protein || nutritionInfo.carbohydrates || nutritionInfo.fat) {
+        console.log(`AI inferred nutrition info for "${productName}"`);
+        return nutritionInfo;
+      } else {
+        console.log('AI returned nutrition info but no meaningful values');
+        return null;
+      }
+    } catch (parseError) {
+      console.error('Error parsing AI nutrition response:', parseError);
+      return null;
+    }
+
+  } catch (error) {
+    console.error('Error inferring nutrition info:', error);
+    return null;
+  }
+}
 
 /**
  * Suggest an expiration date for a product using AI
@@ -142,12 +294,22 @@ export class PantryController {
 
       const validatedData = createPantryItemSchema.parse(req.body);
       
+      // If no category provided, use AI to infer it
+      let category: FoodCategory;
+      if (!validatedData.category) {
+        console.log(`No category provided for "${validatedData.name}", asking AI...`);
+        category = await inferCategory(validatedData.name, validatedData.brand);
+        console.log(`AI inferred category: ${category}`);
+      } else {
+        category = validatedData.category as FoodCategory;
+      }
+      
       // If no expiration date provided (empty string, undefined, or null), use AI to suggest one
       if (!validatedData.expirationDate || validatedData.expirationDate.trim() === '') {
         console.log(`No expiration date provided for "${validatedData.name}", asking AI...`);
         const suggestedDate = await suggestExpirationDate(
           validatedData.name,
-          validatedData.category
+          category
         );
         
         if (suggestedDate) {
@@ -162,13 +324,45 @@ export class PantryController {
         }
       }
       
+      // If no nutrition info provided or it's empty, use AI to infer it
+      let nutritionInfo: NutritionInfo | undefined = validatedData.nutritionInfo;
+      
+      // Check if nutrition info is empty (no meaningful values)
+      const hasNutritionData = nutritionInfo && (
+        nutritionInfo.calories !== undefined ||
+        nutritionInfo.protein !== undefined ||
+        nutritionInfo.carbohydrates !== undefined ||
+        nutritionInfo.fat !== undefined ||
+        nutritionInfo.fiber !== undefined ||
+        nutritionInfo.sugar !== undefined ||
+        nutritionInfo.sodium !== undefined ||
+        (nutritionInfo.servingSize && nutritionInfo.servingSize.trim() !== '')
+      );
+      
+      if (!hasNutritionData) {
+        console.log(`No nutrition info provided for "${validatedData.name}", asking AI...`);
+        const inferredNutrition = await inferNutritionInfo(
+          validatedData.name,
+          validatedData.brand,
+          category
+        );
+        
+        if (inferredNutrition) {
+          nutritionInfo = inferredNutrition;
+          console.log(`AI inferred nutrition info for "${validatedData.name}"`);
+        } else {
+          console.log(`AI failed to infer nutrition info for "${validatedData.name}"`);
+        }
+      }
+      
       // Convert string literals to enum values
       // expirationDate is guaranteed to be set at this point (either from input or AI suggestion)
       const createRequest: CreatePantryItemRequest = {
         ...validatedData,
         expirationDate: validatedData.expirationDate || new Date().toISOString().split('T')[0],
         unit: validatedData.unit as QuantityUnit,
-        category: validatedData.category as FoodCategory,
+        category: category,
+        nutritionInfo: nutritionInfo,
       };
       
       const pantryItem = await this.dbService.createPantryItem(userId, createRequest);

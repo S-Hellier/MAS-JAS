@@ -16,7 +16,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useDispatch } from 'react-redux';
 import { createPantryItem } from '../store/pantrySlice';
-import { FoodCategory, QuantityUnit, CreatePantryItemRequest, NutritionInfo } from '../types/pantry.types';
+import { QuantityUnit, CreatePantryItemRequest, NutritionInfo } from '../types/pantry.types';
 import BarcodeScanner from '../components/BarcodeScanner';
 import apiService from '../services/api.service';
 import { Colors, BorderRadius, Spacing } from '../theme';
@@ -28,7 +28,6 @@ interface AddItemScreenProps {
 const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showUnitModal, setShowUnitModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
@@ -40,7 +39,6 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
     brand: '',
     quantity: 1,
     unit: QuantityUnit.PIECES,
-    category: FoodCategory.OTHER,
     expirationDate: '',
     nutritionInfo: {
       calories: undefined,
@@ -57,15 +55,26 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
     notes: '',
   });
 
-  // Category options
-  const categoryOptions = Object.values(FoodCategory).map(category => ({
-    label: category.charAt(0).toUpperCase() + category.slice(1),
-    value: category,
-  }));
+  // Unit abbreviations mapping
+  const unitAbbreviations: Record<QuantityUnit, string> = {
+    [QuantityUnit.PIECES]: 'pcs',
+    [QuantityUnit.GRAMS]: 'g',
+    [QuantityUnit.KILOGRAMS]: 'kg',
+    [QuantityUnit.POUNDS]: 'lbs',
+    [QuantityUnit.OUNCES]: 'oz',
+    [QuantityUnit.LITERS]: 'L',
+    [QuantityUnit.MILLILITERS]: 'mL',
+    [QuantityUnit.CUPS]: 'cup',
+    [QuantityUnit.TABLESPOONS]: 'tbsp',
+    [QuantityUnit.TEASPOONS]: 'tsp',
+    [QuantityUnit.PACKAGES]: 'pkg',
+    [QuantityUnit.CANS]: 'can',
+    [QuantityUnit.BOTTLES]: 'bottle',
+  };
 
   // Unit options
   const unitOptions = Object.values(QuantityUnit).map(unit => ({
-    label: unit.charAt(0).toUpperCase() + unit.slice(1),
+    label: unitAbbreviations[unit],
     value: unit,
   }));
 
@@ -137,10 +146,8 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
           handleInputChange('brand', productData.brand);
         }
         
-        if (productData.category) {
-          // Map the category string to our FoodCategory enum
-          handleInputChange('category', productData.category as FoodCategory);
-        }
+        // Category will be inferred by AI on the backend if not provided
+        // We don't need to set it here even if barcode lookup returns one
         
         // Auto-populate expiration date if AI suggested one
         if (productData.suggestedExpirationDate) {
@@ -375,7 +382,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Brand (Optional)</Text>
+                <Text style={styles.label}>Brand</Text>
                 <TextInput
                   style={styles.textInput}
                   value={formData.brand}
@@ -384,15 +391,6 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
                   placeholderTextColor={Colors.textTertiary}
                 />
               </View>
-
-              {renderDropdown(
-                'Category',
-                formData.category,
-                categoryOptions,
-                (value) => handleInputChange('category', value as FoodCategory),
-                showCategoryModal,
-                setShowCategoryModal
-              )}
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Quantity *</Text>
@@ -416,7 +414,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
               )}
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Expiration Date (Optional)</Text>
+                <Text style={styles.label}>Expiration Date</Text>
                 <TouchableOpacity
                   style={styles.datePickerButton}
                   onPress={() => setShowDatePicker(true)}
@@ -470,7 +468,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Barcode (Optional)</Text>
+                <Text style={styles.label}>Barcode</Text>
                 <View style={styles.barcodeInputContainer}>
                   <TextInput
                     style={[styles.textInput, styles.barcodeInput]}
@@ -490,7 +488,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Notes (Optional)</Text>
+                <Text style={styles.label}>Notes</Text>
                 <TextInput
                   style={[styles.textInput, styles.textArea]}
                   value={formData.notes}
@@ -505,7 +503,7 @@ const AddItemScreen: React.FC<AddItemScreenProps> = ({ navigation }) => {
 
             {/* Nutrition Information */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Nutrition Information (Optional)</Text>
+              <Text style={styles.sectionTitle}>Nutrition Information</Text>
               
               <View style={styles.row}>
                 <View style={[styles.inputGroup, styles.halfWidth]}>
