@@ -162,6 +162,23 @@ const TabNavigator: React.FC = () => {
           title: 'My Pantry',
           headerShown: false,
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Get the nested navigator state
+            const state = navigation.getState();
+            const pantryTabState = state.routes.find(r => r.name === 'Pantry')?.state;
+            
+            // If we're not already on PantryList, navigate to it
+            // This will pop all screens above PantryList in the stack
+            if (pantryTabState && pantryTabState.routes && pantryTabState.index !== undefined) {
+              const currentRoute = pantryTabState.routes[pantryTabState.index];
+              if (currentRoute && currentRoute.name !== 'PantryList') {
+                // Navigate to PantryList, which will pop to it if it exists in the stack
+                (navigation as any).navigate('Pantry', { screen: 'PantryList' });
+              }
+            }
+          },
+        })}
       />
       <Tab.Screen
         name="Settings"
