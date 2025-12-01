@@ -23,7 +23,7 @@ const createPantryItemSchema = z.object({
   brand: z.string().max(255).optional(),
   quantity: z.number().positive(),
   unit: z.enum(['pieces', 'grams', 'kilograms', 'pounds', 'ounces', 'liters', 'milliliters', 'cups', 'tablespoons', 'teaspoons', 'packages', 'cans', 'bottles']),
-  category: z.enum(['produce', 'grains', 'meat', 'dairy', 'seafood', 'beverages', 'snacks', 'condiments', 'frozen', 'canned', 'bakery', 'spices', 'other']),
+  category: z.enum(['produce', 'grains', 'meat', 'dairy', 'seafood', 'beverages', 'snacks', 'condiments', 'frozen', 'canned', 'bakery', 'spices', 'other']).optional(),
   expirationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal('')), // Allow empty string or valid date - AI will suggest if empty
   nutritionInfo: z.object({
     calories: z.number().optional(),
@@ -53,6 +53,70 @@ const pantryFilterSchema = z.object({
   sortBy: z.enum(['name', 'expirationDate', 'dateAdded']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional()
 });
+
+/**
+ * Infer the category of a product using AI
+ */
+async function inferCategory(productName: string, brand?: string): Promise<FoodCategory> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.log('OpenAI API key not configured, using default category');
+      return FoodCategory.OTHER;
+    }
+
+    const prompt = `You are a food categorization expert. Based on the product information below, categorize it into one of these categories:
+
+Available categories:
+- produce (fruits, vegetables, fresh produce)
+- grains (rice, pasta, cereal, flour, bread ingredients)
+- meat (beef, pork, poultry, lamb, etc.)
+- dairy (milk, cheese, yogurt, butter, etc.)
+- seafood (fish, shellfish, etc.)
+- beverages (drinks, juices, sodas, water, etc.)
+- snacks (chips, cookies, crackers, etc.)
+- condiments (sauces, dressings, spices, seasonings)
+- frozen (frozen foods)
+- canned (canned goods, preserved foods)
+- bakery (bread, pastries, baked goods)
+- spices (spices, herbs, seasonings)
+- other (anything that doesn't fit the above)
+
+Product: ${productName}${brand ? `\nBrand: ${brand}` : ''}
+
+Respond with ONLY the category name in lowercase (e.g., "produce", "dairy", "snacks").`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a food categorization expert. Respond only with a single category name in lowercase.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 20,
+    });
+
+    const categoryStr = completion.choices[0].message.content?.trim().toLowerCase() || 'other';
+    
+    // Validate that the category is one of our enum values
+    const validCategories = Object.values(FoodCategory);
+    const inferredCategory = validCategories.includes(categoryStr as FoodCategory) 
+      ? (categoryStr as FoodCategory) 
+      : FoodCategory.OTHER;
+    
+    console.log(`AI inferred category: ${inferredCategory} for "${productName}"`);
+    return inferredCategory;
+
+  } catch (error) {
+    console.error('Error inferring category:', error);
+    return FoodCategory.OTHER;
+  }
+}
 
 /**
  * Suggest an expiration date for a product using AI
@@ -142,12 +206,22 @@ export class PantryController {
 
       const validatedData = createPantryItemSchema.parse(req.body);
       
+      // If no category provided, use AI to infer it
+      let category: FoodCategory;
+      if (!validatedData.category) {
+        console.log(`No category provided for "${validatedData.name}", asking AI...`);
+        category = await inferCategory(validatedData.name, validatedData.brand);
+        console.log(`AI inferred category: ${category}`);
+      } else {
+        category = validatedData.category as FoodCategory;
+      }
+      
       // If no expiration date provided (empty string, undefined, or null), use AI to suggest one
       if (!validatedData.expirationDate || validatedData.expirationDate.trim() === '') {
         console.log(`No expiration date provided for "${validatedData.name}", asking AI...`);
         const suggestedDate = await suggestExpirationDate(
           validatedData.name,
-          validatedData.category
+          category
         );
         
         if (suggestedDate) {
@@ -168,7 +242,7 @@ export class PantryController {
         ...validatedData,
         expirationDate: validatedData.expirationDate || new Date().toISOString().split('T')[0],
         unit: validatedData.unit as QuantityUnit,
-        category: validatedData.category as FoodCategory,
+        category: category,
       };
       
       const pantryItem = await this.dbService.createPantryItem(userId, createRequest);

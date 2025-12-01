@@ -64,7 +64,7 @@ export interface CreatePantryItemRequest {
   brand?: string;
   quantity: number;
   unit: QuantityUnit;
-  category: FoodCategory;
+  category?: FoodCategory; // Optional - AI will infer if not provided
   expirationDate: string; // ISO date string
   nutritionInfo?: NutritionInfo;
   barcode?: string;
