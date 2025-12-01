@@ -128,6 +128,12 @@ const HomeScreen: React.FC = () => {
 
         <View style={styles.actionsContainer}>
           <TouchableOpacity style={styles.actionButton}
+            onPress={() => navigation.navigate('Pantry', { screen: 'AddItem' })}
+          >
+            <Text style={styles.actionButtonText}>Add Pantry Items</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionButton}
             onPress={() => navigation.navigate('Cookbook')}
           >
             <Text style={styles.actionButtonText}>My Cookbook</Text>

@@ -35,8 +35,6 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your camera to scan barcodes on food items and add them to your pantry.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your microphone for video recording features.</string>
 	<key>RCTNewArchEnabled</key>
