@@ -21,8 +21,8 @@ export interface User {
   id: string;
   email: string;
   name?: string;
-  diet?: DietType;
-  goals?: GoalType;
+  diet?: string;
+  goals?: string;
   food_restrictions?: string[];
   profile_completed?: boolean;
   is_admin?: boolean;
@@ -41,8 +41,8 @@ export interface LoginResponse {
 }
 
 export interface UpdatePreferencesRequest {
-  diet?: DietType;
-  goals?: GoalType;
+  diet?: string;
+  goals?: string;
   food_restrictions?: string[];
   profile_completed?: boolean;
 }
