@@ -7,10 +7,9 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../context/AuthContext';
-import { DietType, GoalType } from '../types/auth.types';
 import { Colors, BorderRadius, Spacing } from '../theme';
 
 const FOOD_RESTRICTIONS = [
@@ -26,29 +25,10 @@ const FOOD_RESTRICTIONS = [
   'Lactose',
 ];
 
-const DIET_OPTIONS = [
-  { label: 'None / No Preference', value: DietType.NONE },
-  { label: 'Keto', value: DietType.KETO },
-  { label: 'Paleo', value: DietType.PALEO },
-  { label: 'Carnivore', value: DietType.CARNIVORE },
-  { label: 'Vegan', value: DietType.VEGAN },
-  { label: 'Vegetarian', value: DietType.VEGETARIAN },
-  { label: 'Mediterranean', value: DietType.MEDITERRANEAN },
-  { label: 'Low Carb', value: DietType.LOW_CARB },
-];
-
-const GOAL_OPTIONS = [
-  { label: 'None / No Specific Goal', value: GoalType.NONE },
-  { label: 'Lose Weight', value: GoalType.LOSE_WEIGHT },
-  { label: 'Build Muscle', value: GoalType.BUILD_MUSCLE },
-  { label: 'Maintain Weight', value: GoalType.MAINTAIN_WEIGHT },
-  { label: 'Improve Health', value: GoalType.IMPROVE_HEALTH },
-];
-
 const ProfileSetupScreen: React.FC = () => {
   const { updatePreferences } = useAuth();
-  const [diet, setDiet] = useState<DietType>(DietType.NONE);
-  const [goals, setGoals] = useState<GoalType>(GoalType.NONE);
+  const [diet, setDiet] = useState<string>('');
+  const [goals, setGoals] = useState<string>('');
   const [foodRestrictions, setFoodRestrictions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -75,8 +55,8 @@ const ProfileSetupScreen: React.FC = () => {
     try {
       setIsLoading(true);
       await updatePreferences({
-        diet,
-        goals,
+        diet: diet || undefined,
+        goals: goals || undefined,
         food_restrictions: foodRestrictions,
         profile_completed: true,
       });
@@ -95,32 +75,26 @@ const ProfileSetupScreen: React.FC = () => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🥗 Diet Type</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={diet}
-            onValueChange={(value) => setDiet(value as DietType)}
-            style={styles.picker}
-          >
-            {DIET_OPTIONS.map((option) => (
-              <Picker.Item key={option.value} label={option.label} value={option.value} />
-            ))}
-          </Picker>
-        </View>
+        <TextInput
+          style={styles.textInput}
+          value={diet}
+          onChangeText={setDiet}
+          placeholder="e.g., Keto, Vegan, Mediterranean..."
+          placeholderTextColor={Colors.textTertiary}
+          editable={true}
+        />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🎯 Goals</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={goals}
-            onValueChange={(value) => setGoals(value as GoalType)}
-            style={styles.picker}
-          >
-            {GOAL_OPTIONS.map((option) => (
-              <Picker.Item key={option.value} label={option.label} value={option.value} />
-            ))}
-          </Picker>
-        </View>
+        <TextInput
+          style={styles.textInput}
+          value={goals}
+          onChangeText={setGoals}
+          placeholder="e.g., Lose Weight, Build Muscle..."
+          placeholderTextColor={Colors.textTertiary}
+          editable={true}
+        />
       </View>
 
       <View style={styles.section}>
@@ -211,15 +185,15 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginBottom: Spacing.sm,
   },
-  pickerContainer: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
+  textInput: {
     borderWidth: 1,
     borderColor: Colors.border,
-    overflow: 'hidden',
-  },
-  picker: {
-    height: 50,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    fontSize: 16,
+    backgroundColor: Colors.surface,
+    color: Colors.textPrimary,
   },
   restrictionsContainer: {
     flexDirection: 'row',

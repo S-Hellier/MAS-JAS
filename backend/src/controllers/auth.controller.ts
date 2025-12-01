@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { LoginRequest, UpdatePreferencesRequest, DietType, GoalType } from '../types/auth.types';
+import { LoginRequest, UpdatePreferencesRequest } from '../types/auth.types';
 
 const authService = AuthService.getInstance();
 
@@ -133,17 +133,17 @@ export async function updatePreferences(req: Request, res: Response) {
       });
     }
 
-    // Validate diet if provided
-    if (diet !== undefined && !Object.values(DietType).includes(diet)) {
+    // Validate diet if provided - accept any string
+    if (diet !== undefined && typeof diet !== 'string') {
       return res.status(400).json({
-        error: `Invalid diet type. Must be one of: ${Object.values(DietType).join(', ')}`,
+        error: 'Diet must be a string',
       });
     }
 
-    // Validate goals if provided
-    if (goals !== undefined && !Object.values(GoalType).includes(goals)) {
+    // Validate goals if provided - accept any string
+    if (goals !== undefined && typeof goals !== 'string') {
       return res.status(400).json({
-        error: `Invalid goal type. Must be one of: ${Object.values(GoalType).join(', ')}`,
+        error: 'Goals must be a string',
       });
     }
 
