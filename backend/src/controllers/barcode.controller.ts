@@ -143,21 +143,49 @@ Be conservative - suggest shorter dates when uncertain.`;
  */
 export const lookupBarcode = async (req: Request, res: Response) => {
   try {
-    const { barcode } = req.params;
+    let { barcode } = req.params;
+
+    // Decode URL encoding if present (Express usually does this, but be safe)
+    try {
+      barcode = decodeURIComponent(barcode);
+    } catch (e) {
+      // If decoding fails, use original value
+    }
+
+    // Store original for error messages
+    const originalBarcode = barcode;
+    
+    // Trim whitespace and remove any non-numeric characters (dashes, spaces, etc.)
+    // This handles cases where barcodes might be formatted like "123-456-789"
+    const cleanedBarcode = barcode.trim().replace(/[^\d]/g, '');
+    
+    // Check if barcode had non-numeric characters
+    const hadNonNumeric = cleanedBarcode.length !== barcode.trim().length;
+    
+    // Use cleaned barcode for validation and lookup
+    barcode = cleanedBarcode;
 
     // Validate barcode parameter
-    if (!barcode || barcode.trim() === '') {
+    if (!barcode || barcode === '') {
       return res.status(400).json({
         success: false,
         error: 'Barcode is required',
+        message: `The barcode "${originalBarcode}" contains no numeric digits. Open Food Facts only supports numeric barcodes.`,
       });
     }
 
     // Validate barcode format (should be numeric and reasonable length)
-    if (!/^\d{8,14}$/.test(barcode)) {
+    // Allow 6-18 digits to support various barcode formats:
+    // - UPC-A: 12 digits
+    // - EAN-13: 13 digits
+    // - EAN-8: 8 digits
+    // - Some internal/store barcodes: 6-7 digits
+    // - EAN-18/SSCC: up to 18 digits
+    if (!/^\d{6,18}$/.test(barcode)) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid barcode format. Barcode should be 8-14 digits.',
+        error: `Invalid barcode format. Barcode should be 6-18 numeric digits.`,
+        message: `Received: "${originalBarcode}" (cleaned to "${barcode}", ${barcode.length} digits). ${hadNonNumeric ? 'Non-numeric characters were removed.' : ''}`,
       });
     }
 
